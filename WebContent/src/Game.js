@@ -264,7 +264,7 @@ BasicGame.Game.prototype = {
         if (this.bRunBg == false) { return };
 
         var type = this.game.rnd.integerInRange(1, 8);
-        // type = 8
+        type = 8
         var initpos = 80
         //石墙
         if (type == 1) {
