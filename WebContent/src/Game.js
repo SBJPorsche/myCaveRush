@@ -113,7 +113,10 @@ BasicGame.Game.prototype = {
         }else{
             this.player.angle = 0
         };
-        playerRotation = Math.ceil(this.player.angle%360)
+        if (betadirection>60) {
+            this.player.angle = 180
+        };
+        playerRotation = Math.ceil(this.player.angle%360+360)
 
         this.scoreText.text = this.bg.distance
 
@@ -647,10 +650,12 @@ BasicGame.Game.prototype = {
             playerBord.anchor.set(0.5)
             playerBord.scale.set(1) 
 
-            var angles = [-60,-45,-30,0,30,45,60]
+            var angles = [-60,-45,-30,0,30,45,60,180]
             angles = Phaser.ArrayUtils.shuffle(angles)
             playerBord.angle = angles[0]
             this.game.time.events.loop(Phaser.Timer.SECOND/60, function () {
+                this.testtext.text = playerRotation
+                this.testtext1.text = angles[0]
                 if (playerRotation == angles[0]) {
                     playerBord.kill();
                     this.bRunBg = true;
