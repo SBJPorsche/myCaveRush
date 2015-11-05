@@ -26,6 +26,19 @@ BasicGame.Game = function (game) {
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 };
 
+var betadirection=0,gammadirection=0,alphadirection=0;
+var playerRotation = 0
+function deviceOrientationListener(event) {
+  alphadirection = Math.round(event.alpha);
+  betadirection = Math.round(event.beta);
+  gammadirection = Math.round(event.gamma);
+}
+  
+if (window.DeviceOrientationEvent) {
+        window.addEventListener("deviceorientation", deviceOrientationListener);
+} else {
+        alert("您使用的浏览器不支持Device Orientation特性");
+}
 BasicGame.Game.prototype = {
     create: function () {
         this.bg = new BasicGame.BackGround(this.game)
@@ -44,7 +57,16 @@ BasicGame.Game.prototype = {
         this.lockGroup.enableBody = true;  
 
         this.cardGroup = this.game.add.group();
-        this.cardGroup.enableBody = true;                           
+        this.cardGroup.enableBody = true;   
+
+        this.mathGroup = this.game.add.group();
+        this.mathGroup.enableBody = true; 
+
+        this.diffGroup = this.game.add.group();
+        this.diffGroup.enableBody = true;    
+
+        this.rotateGroup = this.game.add.group();
+        this.rotateGroup.enableBody = true;                                               
 
         this.player = new BasicGame.Player(this.game, this.game.width/2, this.game.height/2-200)
         this.game.add.existing(this.player);    
@@ -52,16 +74,23 @@ BasicGame.Game.prototype = {
         this.master = this.game.add.sprite(this.game.width/2,-300,'master')
         this.master.anchor.set(0.5) 
         this.game.physics.enable(this.master, Phaser.Physics.ARCADE); 
+        this.game.time.events.loop(Phaser.Timer.SECOND, function () {
+            if (this.bRunBg == true) {
+                this.masterGo(2)
+            };
+        }, this);   
 
-        var style = {font: '25px Arial', fill: '#ffffff', align: 'center', fontWeight: 'bold', stroke: '#000000', strokeThickness: 6};
-        this.scoreText = this.game.add.text(this.game.width-100, 100, "0", style);
+        this.style = {font: '25px Arial', fill: '#ffffff', align: 'center', fontWeight: 'bold', stroke: '#000000', strokeThickness: 6};
+        this.scoreText = this.game.add.text(this.game.width-100, 100, "0", this.style);
         this.scoreText.anchor.set(0.5); 
 
-        this.masterDistance = this.game.add.text(100, 100,'0', style);
-        this.masterDistance.anchor.set(0.5);   
+        this.masterDistance = this.game.add.text(100, 100,'0', this.style);
+        this.masterDistance.anchor.set(0.5);                  
 
-        this.textcnt = this.game.add.text(100, 400,0, style);
-        this.textcnt.anchor.set(0.5);                
+        this.testtext = this.game.add.text(100, 300,0, this.style);
+        this.testtext.anchor.set(0.5);
+        this.testtext1 = this.game.add.text(100, 400,0, this.style);
+        this.testtext1.anchor.set(0.5);        
 
         this.game.time.events.loop(Phaser.Timer.SECOND*3, this.createEnemy, this);   
         this.game.time.events.start();       
@@ -79,8 +108,14 @@ BasicGame.Game.prototype = {
             this.bg.updateBg()// 刷新背景图
         };
 
+        if (gammadirection>20 || gammadirection<-20) {
+            this.player.angle = gammadirection 
+        }else{
+            this.player.angle = 0
+        };
+        playerRotation = Math.ceil(this.player.angle%360)
+
         this.scoreText.text = this.bg.distance
-        this.textcnt.text = this.cardGroup.length
 
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
@@ -150,16 +185,61 @@ BasicGame.Game.prototype = {
         this.game.physics.arcade.overlap(this.player,this.cardGroup, function () {
             this.bRunBg = false
         }, null, this); 
-        // this.cardGroup.forEachExists(function(card){
-        //     if (this.bRunBg == false) {
-        //         card.body.moves = false
-        //     }else{
-        //         card.body.moves = true
-        //     };
-        //     if (card.y < 0) {
-        //         this.cardGroup.remove(card)
-        //     };
-        // }, this);                 
+        this.cardGroup.forEachExists(function(card){
+            if (this.bRunBg == false) {
+                card.body.moves = false
+            }else{
+                card.body.moves = true
+            };
+            if (card.y < 0) {
+                this.cardGroup.remove(card)
+            };
+        }, this);     
+
+        //与math碰撞
+        this.game.physics.arcade.overlap(this.player,this.mathGroup, function () {
+            this.bRunBg = false
+        }, null, this); 
+        this.mathGroup.forEachExists(function(math){
+            if (this.bRunBg == false) {
+                math.body.moves = false
+            }else{
+                math.body.moves = true
+            };
+            if (math.y < 0) {
+                this.mathGroup.remove(math)
+            };
+        }, this);                     
+
+        //与diff碰撞
+        this.game.physics.arcade.overlap(this.player,this.diffGroup, function () {
+            this.bRunBg = false
+        }, null, this); 
+        this.diffGroup.forEachExists(function(math){
+            if (this.bRunBg == false) {
+                math.body.moves = false
+            }else{
+                math.body.moves = true
+            };
+            if (math.y < 0) {
+                this.diffGroup.remove(math)
+            };
+        }, this); 
+
+        //与rotate碰撞
+        this.game.physics.arcade.overlap(this.player,this.rotateGroup, function () {
+            this.bRunBg = false
+        }, null, this); 
+        this.rotateGroup.forEachExists(function(math){
+            if (this.bRunBg == false) {
+                math.body.moves = false
+            }else{
+                math.body.moves = true
+            };
+            if (math.y < 0) {
+                this.rotateGroup.remove(math)
+            };
+        }, this);         
 
         this.game.physics.arcade.overlap(this.player,this.master, function () {
             this.quitGame();
@@ -171,6 +251,7 @@ BasicGame.Game.prototype = {
         this.offsetY = 0
         this.state.start('MainMenu');
     },
+
     render: function () {
         // this.game.debug.spriteInfo(this.game, 64, 64);
     },
@@ -179,13 +260,14 @@ BasicGame.Game.prototype = {
         // 暂时有敌人障碍，不出现先障碍
         if (this.bRunBg == false) { return };
 
-        var type = this.game.rnd.integerInRange(1, 4);
-        type = 5
+        var type = this.game.rnd.integerInRange(1, 8);
+        // type = 8
+        var initpos = 80
         //石墙
         if (type == 1) {
             if (this.fenceGroup.length > 0) {return};
 
-            var fence = this.game.add.sprite(this.game.width/2, this.game.height+80, 'fence', null, this.fenceGroup);
+            var fence = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'fence', null, this.fenceGroup);
             fence.anchor.set(0.5)
             fence.scale.x = 4
             fence.inputEnabled = true;
@@ -202,26 +284,26 @@ BasicGame.Game.prototype = {
         if (type == 2) {
             if (this.birdGroup.length > 0) {return};
 
-            var bird = this.game.add.sprite(this.game.width, this.game.height+80, 'bird', null, this.birdGroup);
-            // this.game.add.tween(bird).to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
-            var tweenBird = this.game.add.tween(bird)
-            tweenBird.to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut); 
-            tweenBird.start();
-            tweenBird.onComplete.addOnce(function () {
-                bird.angle += 180
-                var tweenBird = this.game.add.tween(bird)
-                tweenBird.to({ x: this.game.width }, 4000, Phaser.Easing.Quadratic.InOut); 
-                tweenBird.start();
-                tweenBird.onComplete.addOnce(function () {
-                    bird.angle -= 180
-                    var tweenBird = this.game.add.tween(bird)
-                    tweenBird.to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut); 
-                    tweenBird.start();
-                    tweenBird.onComplete.addOnce(function () {
-                        bird.angle += 180
-                    }, this);                                     
-                }, this);                    
-            }, this);
+            var bird = this.game.add.sprite(this.game.width, this.game.height+initpos, 'bird', null, this.birdGroup);
+            this.game.add.tween(bird).to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+            // var tweenBird = this.game.add.tween(bird)
+            // tweenBird.to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut); 
+            // tweenBird.start();
+            // tweenBird.onComplete.addOnce(function () {
+            //     bird.angle += 180
+            //     var tweenBird = this.game.add.tween(bird)
+            //     tweenBird.to({ x: this.game.width }, 4000, Phaser.Easing.Quadratic.InOut); 
+            //     tweenBird.start();
+            //     tweenBird.onComplete.addOnce(function () {
+            //         bird.angle -= 180
+            //         var tweenBird = this.game.add.tween(bird)
+            //         tweenBird.to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut); 
+            //         tweenBird.start();
+            //         tweenBird.onComplete.addOnce(function () {
+            //             bird.angle += 180
+            //         }, this);                                     
+            //     }, this);                    
+            // }, this);
             bird.anchor.set(0.5)
             bird.animations.add('fly');
             bird.animations.play('fly', 30, true);
@@ -243,7 +325,7 @@ BasicGame.Game.prototype = {
             var typeArrow = this.game.rnd.integerInRange(1, 2);
             var perX
 
-            var arrow = this.game.add.sprite(this.game.width/2, this.game.height+80, 'arrow', null, this.arrowGroup);
+            var arrow = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'arrow', null, this.arrowGroup);
             arrow.anchor.set(0.5)
             arrow.scale.set(4)
             if (typeArrow == 1) {arrow.angle = 180};
@@ -343,7 +425,7 @@ BasicGame.Game.prototype = {
             lock.scale.set(0.4)
 
             var keyTypeL = this.game.rnd.integerInRange(0, 1)
-            var keyL = this.game.add.sprite(0, this.game.height+80, keys[keyTypeL], null, this.lockGroup);
+            var keyL = this.game.add.sprite(0, this.game.height+initpos, keys[keyTypeL], null, this.lockGroup);
             keyL.anchor.set(0.5)
             keyL.scale.set(0.4)           
             keyL.inputEnabled = true;           
@@ -359,6 +441,7 @@ BasicGame.Game.prototype = {
                         this.lockGroup.remove(keyL);
                         this.lockGroup.remove(keyR);
                     } else{
+                        this.masterGo(50)
                         keyL.kill();
                         this.lockGroup.remove(keyL);
                     };
@@ -368,7 +451,7 @@ BasicGame.Game.prototype = {
             keyL.events.onDragStop.add(interacteFunc,this);  
 
             if (keyTypeL == 0) {keyTypeR = 1} else{keyTypeR = 0};
-            var keyR = this.game.add.sprite(this.game.width, this.game.height+80, keys[keyTypeR], null, this.lockGroup);
+            var keyR = this.game.add.sprite(this.game.width, this.game.height+initpos, keys[keyTypeR], null, this.lockGroup);
             keyR.anchor.set(0.5)
             keyR.scale.set(0.4)              
             keyR.inputEnabled = true;           
@@ -384,6 +467,7 @@ BasicGame.Game.prototype = {
                         this.lockGroup.remove(keyL);
                         this.lockGroup.remove(keyR);
                     } else{
+                        this.masterGo(50)
                         keyR.kill();
                         this.lockGroup.remove(keyR);
                     };
@@ -401,50 +485,213 @@ BasicGame.Game.prototype = {
             if (this.cardGroup.length > 0) {return};
 
             var poss = [this.game.width/4*1,this.game.width/4*2,this.game.width/4*3]
+            var cards = ['card_26','card_28','card_38']
+            cards = Phaser.ArrayUtils.shuffle(cards)
 
-            var card1 = this.game.add.sprite(poss[0], this.game.height+80, 'dika', null, this.cardGroup);
+            var cardBase = this.game.add.sprite(poss[2], this.game.height+initpos, cards[0], null, this.cardGroup);
+            cardBase.anchor.set(0.5)
+            cardBase.scale.set(0.4)  
+            this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+
+            var card1 = this.game.add.sprite(poss[0], this.game.height+300, cards[0], null, this.cardGroup);
             card1.anchor.set(0.5)
+            card1.scale.set(0.4)
             card1.inputEnabled = true;
             card1.events.onInputDown.add(function  () {
-                Shuffle(card1)
+                cardBase.kill();
+                card1.kill();
+                card2.kill();
+                card3.kill();
+                this.bRunBg = true;
+                this.cardGroup.remove(cardBase)
+                this.cardGroup.remove(card1)
+                this.cardGroup.remove(card2)
+                this.cardGroup.remove(card3)                
             }, this); 
-            var card2 = this.game.add.sprite(poss[1], this.game.height+80, 'dika', null, this.cardGroup);
+            var card2 = this.game.add.sprite(poss[1], this.game.height+300, cards[1], null, this.cardGroup);
             card2.anchor.set(0.5)
-            card2.inputEnabled = true;
-            card2.events.onInputDown.add(function  () {
-                Shuffle(card2)
-            }, this); 
-            var card3 = this.game.add.sprite(poss[2], this.game.height+80, 'dika', null, this.cardGroup);
+            card2.scale.set(0.4)            
+            var card3 = this.game.add.sprite(poss[2], this.game.height+300, cards[2], null, this.cardGroup);
             card3.anchor.set(0.5)
-            card3.inputEnabled = true;
-            card3.events.onInputDown.add(function  () {
-                Shuffle(card3)
+            card3.scale.set(0.4)  
+            this.game.time.events.loop(Phaser.Timer.SECOND*1.2, function () {
+                poss = Phaser.ArrayUtils.shuffle(poss)
+                card1.x = poss[0]
+                card2.x = poss[1]
+                card3.x = poss[2]                                   
             }, this);            
-
-            var trueSpr = this.game.make.sprite(0,0,'card_26')
-            trueSpr.anchor.set(0.5)
-            trueSpr.scale.set(0.4)  
-            // var cardidx = this.game.rnd.integerInRange(0,2)           
-            card1.addChild(trueSpr)
-            card1.trueSpr = trueSpr
-
-            var Shuffle = function (card) {
-                if (card.trueSpr) {
-                    this.bRunBg = true;
-                    card1.kill();
-                    card2.kill();
-                    card3.kill();
-                    // this.cardGroup.removeAll(true)
-                } else{
-                    poss = Phaser.ArrayUtils.shuffle(poss)
-                    card1.x = poss[0]
-                    card2.x = poss[1]
-                    card3.x = poss[2]
-                };
-            }            
 
             this.cardGroup.setAll('outOfBoundsKill',true);
             this.cardGroup.setAll('body.gravity.y', -60);                      
-        };        
+        }; 
+
+        //数学板
+        if (type == 6) {
+            if (this.mathGroup.length > 0) {return};
+
+            var textshow
+            var right = false
+            var initbord = function () {
+                var a = Math.ceil(Math.random()*500)
+                var b = Math.ceil(Math.random()*500)
+                var arr = ['+','-']
+                var subs = [-100,-10,0,10,100,0,0]
+                subs = Phaser.ArrayUtils.shuffle(subs)
+                var sub = subs[0]
+                var sum = a+b+sub
+                if (sub == 0) {
+                    right = true
+                };
+                var str = a+arr[0]+b+'='+sum
+                textshow.text = str
+            }
+
+            var mathBord = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'fence', null, this.mathGroup);
+            mathBord.anchor.set(0.5)
+            mathBord.scale.set(4,2) 
+
+            textshow = this.game.make.text(0, 0, "0", this.style);
+            mathBord.addChild(textshow);
+            textshow.anchor.set(0.5);
+            textshow.scale.set(0.5,1) 
+            initbord()
+            
+            var yes = this.game.make.button(0,0, 'yes',function () {
+                if (right == true) {
+                    mathBord.kill();
+                    this.bRunBg = true;
+                    this.mathGroup.remove(mathBord)
+                } else{
+                    this.masterGo(50)
+                    initbord()
+                };
+            }, this, 2, 1, 0)
+            mathBord.addChild(yes);
+            yes.scale.set(0.5,1)
+            yes.x = 50
+            yes.y = 0
+
+            var no = this.game.make.button(0,0, 'no',function () {
+                if (right == false) {
+                    mathBord.kill();
+                    this.bRunBg = true;
+                    this.mathGroup.remove(mathBord)
+                } else{
+                    this.masterGo(50)
+                    initbord()
+                };
+            }, this, 2, 1, 0)
+            mathBord.addChild(no);            
+            no.scale.set(0.5,1)
+            no.x = -80
+            no.y = 0            
+
+            this.mathGroup.setAll('outOfBoundsKill',true);
+            this.mathGroup.setAll('body.gravity.y', -60);    
+        };    
+
+        //找不同
+        if (type == 7) {
+            if (this.diffGroup.length > 0) {return};
+
+            var pics = []
+            for (var i = 0; i < 9; i++) {
+                if (i < 8) {
+                    pics[i] = 'yes'
+                } else{
+                    pics[i] = 'no'
+                };
+            };
+
+            var poss = [
+                        [-30,-30],[0,-30],[30,-30],
+                        [-30,0],[0,0],[30,0],
+                        [-30,30],[0,30],[30,30]
+                        ]
+            poss = Phaser.ArrayUtils.shuffle(poss)
+
+            var diffBord = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'background', null, this.diffGroup);
+            diffBord.anchor.set(0.5)
+            diffBord.scale.set(4) 
+
+            for (var i = 0; i < pics.length; i++) {
+                var btn
+                if (i < 8) {
+                    btn = this.game.make.button(0,0, pics[i],function () {
+                        this.masterGo(50)
+                    }, this, 2, 1, 0)
+                } else{
+                    btn = this.game.make.button(0,0, pics[i],function () {
+                        this.masterBack(30)
+                        diffBord.kill();
+                        this.bRunBg = true;
+                        this.diffGroup.remove(diffBord)
+                    }, this, 2, 1, 0)
+                };
+                diffBord.addChild(btn);
+                btn.anchor.set(0.5)
+                btn.scale.set(0.5)
+                btn.x = poss[i][0]
+                btn.y = poss[i][1]            
+            };        
+
+            this.diffGroup.setAll('outOfBoundsKill',true);
+            this.diffGroup.setAll('body.gravity.y', -60);    
+        };    
+
+        //主角旋转
+        if (type == 8) {
+            if (this.rotateGroup.length > 0) {return};
+
+            var playerBord = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'player', null, this.rotateGroup);
+            playerBord.anchor.set(0.5)
+            playerBord.scale.set(1) 
+
+            var angles = [-60,-45,-30,0,30,45,60]
+            angles = Phaser.ArrayUtils.shuffle(angles)
+            playerBord.angle = angles[0]
+            this.game.time.events.loop(Phaser.Timer.SECOND/60, function () {
+                if (playerRotation == angles[0]) {
+                    playerBord.kill();
+                    this.bRunBg = true;
+                    this.rotateGroup.remove(playerBord)
+                };
+            }, this);        
+
+            this.rotateGroup.setAll('outOfBoundsKill',true);
+            this.rotateGroup.setAll('body.gravity.y', -60);    
+        };                  
     },
+
+    masterGo:function (distance) {
+        distance = distance || 20
+        var toY = this.master.y + distance
+        var tweenMaster = this.game.add.tween(this.master)
+        tweenMaster.to({ y: toY }, 4000, Phaser.Easing.Quadratic.InOut); 
+        tweenMaster.start();
+    },
+
+    masterBack:function (distance) {
+        distance = distance || 20
+        var toY = this.master.y - distance
+        var tweenMaster = this.game.add.tween(this.master)
+        tweenMaster.to({ y: toY }, 4000, Phaser.Easing.Quadratic.InOut); 
+        tweenMaster.start();        
+    },
+
+    playerGo:function (distance) {
+        distance = distance || 20
+        var toY = this.player.y + distance
+        var tweenplayer = this.game.add.tween(this.player)
+        tweenplayer.to({ y: toY }, 4000, Phaser.Easing.Quadratic.InOut); 
+        tweenplayer.start();
+    },
+
+    playerBack:function (distance) {
+        distance = distance || 20
+        var toY = this.player.y - distance
+        var tweenplayer = this.game.add.tween(this.player)
+        tweenplayer.to({ y: toY }, 4000, Phaser.Easing.Quadratic.InOut); 
+        tweenplayer.start();        
+    },    
 };
