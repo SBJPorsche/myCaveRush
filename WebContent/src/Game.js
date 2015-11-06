@@ -145,7 +145,7 @@ BasicGame.Game.prototype = {
         this.scoreText.text = this.bg.distance
         this.testtext1.text = this.bRunBg
         this.testtext.text = this.hitGroup.length+this.killGroup.length
-        // this.testtext.text = bPlayerShade
+        this.testtext.text = 'yyy:'+bPlayerShade
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
 
@@ -186,12 +186,12 @@ BasicGame.Game.prototype = {
         }, this); 
 
         if (this.bRunBg == false) {
-            // if (this.master.y > 0) {
-            //     this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
-            //     this.offsetY += 0.2
-            // } else{
-            //     this.master.y = this.master.y + 1 // 怪物逼近
-            // };
+            if (this.master.y > 0) {
+                this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
+                this.offsetY += 0.2
+            } else{
+                this.master.y = this.master.y + 1 // 怪物逼近
+            };
         } else{
             this.bg.updateBg()// 刷新背景图
         };         
@@ -210,8 +210,8 @@ BasicGame.Game.prototype = {
     createEnemy: function (y) {
         // 暂时有敌人障碍，不出现先障碍
         var nextEnemyY = 0
-        var type = this.game.rnd.integerInRange(1, 8);
-        // type = 1
+        var type = this.game.rnd.integerInRange(1, 9);
+        // type = 9
         //石墙
         if (type == 1) {
             nextEnemyY = y+200 // 80是enemy高度
@@ -228,7 +228,6 @@ BasicGame.Game.prototype = {
             }, this);  
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
             this.hitGroup.setAll('body.moves', false);                              
-
         };
 
         //飞鸟
@@ -247,7 +246,6 @@ BasicGame.Game.prototype = {
             }, this); 
             this.killGroup.setAll('body.gravity.y', this.gamespeed);    
             this.killGroup.setAll('body.moves', false);                              
-
         };
 
         //箭头
@@ -360,7 +358,6 @@ BasicGame.Game.prototype = {
             keyR.events.onDragStop.add(interacteFuncR, this);   
             this.hitGroup.setAll('body.gravity.y', this.gamespeed); 
             this.hitGroup.setAll('body.moves', false);                              
-
         }; 
 
         //猜卡牌
@@ -400,7 +397,6 @@ BasicGame.Game.prototype = {
             }, this);  
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);   
             this.hitGroup.setAll('body.moves', false);                              
-
         }; 
 
         //数学板
@@ -468,7 +464,6 @@ BasicGame.Game.prototype = {
             no.y = 0     
             this.hitGroup.setAll('body.gravity.y', this.gamespeed); 
             this.hitGroup.setAll('body.moves', false);                              
-
         };    
 
         //找不同
@@ -518,7 +513,6 @@ BasicGame.Game.prototype = {
             }; 
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);   
             this.hitGroup.setAll('body.moves', false);                              
-
         };    
 
         //主角旋转
@@ -542,8 +536,32 @@ BasicGame.Game.prototype = {
             }, this);   
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);                        
             this.hitGroup.setAll('body.moves', false);                              
-
         };  
+
+        //摇一摇
+        if (type == 9) {
+            nextEnemyY = y+200 // 80是enemy高度
+            var shade = this.game.add.sprite(this.game.width/2, y+200, 'fence', null, this.hitGroup);
+            shade.anchor.set(0.5)
+            shade.scale.x = 4
+            this.game.time.events.loop(Phaser.Timer.SECOND/60, function () {
+                if (bPlayerShade == true) {
+                    if (this.hitGroup.getFirstAlive() == shade) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(shade)
+                    shade.kill()
+                };  
+            }, this); 
+
+            var textshow = this.game.make.text(0, 0, "摇一摇设备！", this.style);
+            shade.addChild(textshow);
+            textshow.anchor.set(0.5);
+            textshow.scale.set(0.5,1) 
+
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.hitGroup.setAll('body.moves', false);                              
+        };        
 
         return nextEnemyY;                
     },
