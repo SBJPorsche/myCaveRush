@@ -21,6 +21,7 @@ BasicGame.Game = function (game) {
 
     this.bRunBg = true
     this.offsetY = 0
+    this.gamespeed = -80
 
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
@@ -35,38 +36,64 @@ function deviceOrientationListener(event) {
 }
   
 if (window.DeviceOrientationEvent) {
-        window.addEventListener("deviceorientation", deviceOrientationListener);
+    window.addEventListener("deviceorientation", deviceOrientationListener);
 } else {
-        alert("您使用的浏览器不支持Device Orientation特性");
+    alert("您使用的浏览器不支持Device Orientation特性");
 }
+
+var bPlayerShade = false
+// 首先，定义一个摇动的阀值
+var SHAKE_THRESHOLD = 3000;
+// 定义一个变量保存上次更新的时间
+var last_update = 0;
+// 紧接着定义x、y、z记录三个轴的数据以及上一次出发的时间
+var x;
+var y;
+var z;
+var last_x;
+var last_y;
+var last_z;
+
+// 为了增加这个例子的一点无聊趣味性，增加一个计数器
+var count = 0;
+
+function deviceMotionHandler(eventdata) {
+    var acceleration = eventdata.accelerationIncludingGravity
+    var curtime = new Date().getTime()
+    var difftime = curtime - last_update
+    if (difftime > 100) {
+        last_update = curtime
+        x = acceleration.x
+        y = acceleration.y
+        z = acceleration.z
+
+        var speed = Math.abs(x + y + z - last_x - last_y - last_z)/ difftime * 10000; 
+        if (speed > SHAKE_THRESHOLD) {
+            bPlayerShade = true
+        }else{
+            bPlayerShade = false
+        };
+        last_x = x
+        last_y = y
+        last_z = z
+    };   
+}
+if (window.DeviceMotionEvent) {
+    window.addEventListener('devicemotion', deviceMotionHandler);
+} else{
+    alert("移动浏览器不支持运动传感事件 ");
+};
+
 BasicGame.Game.prototype = {
     create: function () {
         this.bg = new BasicGame.BackGround(this.game)
         this.game.add.existing(this.bg);
 
-        this.fenceGroup = this.game.add.group();
-        this.fenceGroup.enableBody = true;
+        this.killGroup = this.game.add.group();
+        this.killGroup.enableBody = true;       
 
-        this.birdGroup = this.game.add.group();
-        this.birdGroup.enableBody = true;     
-
-        this.arrowGroup = this.game.add.group();
-        this.arrowGroup.enableBody = true;    
-
-        this.lockGroup = this.game.add.group();
-        this.lockGroup.enableBody = true;  
-
-        this.cardGroup = this.game.add.group();
-        this.cardGroup.enableBody = true;   
-
-        this.mathGroup = this.game.add.group();
-        this.mathGroup.enableBody = true; 
-
-        this.diffGroup = this.game.add.group();
-        this.diffGroup.enableBody = true;    
-
-        this.rotateGroup = this.game.add.group();
-        this.rotateGroup.enableBody = true;                                               
+        this.hitGroup = this.game.add.group();
+        this.hitGroup.enableBody = true;            
 
         this.player = new BasicGame.Player(this.game, this.game.width/2, this.game.height/2-200)
         this.game.add.existing(this.player);    
@@ -88,26 +115,22 @@ BasicGame.Game.prototype = {
         this.masterDistance.anchor.set(0.5);                  
 
         this.testtext = this.game.add.text(100, 300,0, this.style);
-        this.testtext.anchor.set(0.5);
-        this.testtext1 = this.game.add.text(100, 400,0, this.style);
-        this.testtext1.anchor.set(0.5);        
+        this.testtext.anchor.set(0.5);   
+        this.testtext1 = this.game.add.text(100, 500,0, this.style);
+        this.testtext1.anchor.set(0.5);              
 
-        this.game.time.events.loop(Phaser.Timer.SECOND*3, this.createEnemy, this);   
+        this.game.time.events.loop(Phaser.Timer.SECOND*10, function () {
+            if (this.hitGroup.length+this.killGroup.length > 1) { return };
+            var newY = this.game.height
+            for (var i = 0; i < 3; i++) {
+               newY = this.createEnemy(newY) 
+            };
+        }, this);   
         this.game.time.events.start();       
     },
 
     update: function () {
-        if (this.bRunBg == false) {
-            if (this.master.y > 0) {
-                this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
-                this.offsetY += 0.1
-            } else{
-                this.master.y = this.master.y + 1 // 怪物逼近
-            };
-        } else{
-            this.bg.updateBg()// 刷新背景图
-        };
-
+        // 手机感应
         if (gammadirection>20 || gammadirection<-20) {
             this.player.angle = gammadirection 
         }else{
@@ -116,137 +139,62 @@ BasicGame.Game.prototype = {
         if (betadirection>60) {
             this.player.angle = 180
         };
-        playerRotation = Math.ceil(this.player.angle%360+360)
+        playerRotation = Math.ceil((this.player.angle+360)%360)
 
+        //数值
         this.scoreText.text = this.bg.distance
-
+        this.testtext1.text = this.bRunBg
+        this.testtext.text = this.hitGroup.length+this.killGroup.length
+        // this.testtext.text = bPlayerShade
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
-        
-        //与fence碰撞
-        this.game.physics.arcade.collide(this.player,this.fenceGroup, function () {
-            this.bRunBg = false
-        }, null, this); 
-        this.fenceGroup.forEachExists(function(fence){
-            if (this.bRunBg == false) {
-                fence.body.moves = false
-            }else{
-                fence.body.moves = true
-            };            
-            if (fence.y < 0) {
-                this.fenceGroup.remove(fence)
-            };
-        }, this);         
-        
-        //与arrow碰撞  
-        this.game.physics.arcade.collide(this.player,this.arrowGroup, function () {
-            this.bRunBg = false
-        }, null, this); 
-        this.arrowGroup.forEachExists(function(arrow){
-            if (this.bRunBg == false) {
-                arrow.body.moves = false
-            }else{
-                arrow.body.moves = true
-            };            
-            if (arrow.y < 0) {
-                arrow.kill();
-                this.arrowGroup.remove(arrow)
-            };
-        }, this); 
-        
-        //与bird碰撞
-        this.game.physics.arcade.overlap(this.player,this.birdGroup, function () {
-            this.quitGame();
-        }, null, this); 
-        this.birdGroup.forEachExists(function(bird){
-            if (this.bRunBg == false) {
-                bird.body.moves = false
-            }else{
-                bird.body.moves = true
-            };
-            if (bird.y < 0) {
-                this.birdGroup.remove(bird)
-            };
-        }, this);  
-        
-        //与lock碰撞
-        this.game.physics.arcade.collide(this.player,this.lockGroup, function () {
-            this.bRunBg = false
-        }, null, this);   
-        this.lockGroup.forEachExists(function(lock){
-            if (this.bRunBg == false) {
-                lock.body.moves = false
-            }else{
-                lock.body.moves = true
-            };            
-            if (lock.y < 0) {
-                this.lockGroup.remove(lock)
-            };
-        }, this);  
 
-        //与card碰撞
-        this.game.physics.arcade.overlap(this.player,this.cardGroup, function () {
-            this.bRunBg = false
-        }, null, this); 
-        this.cardGroup.forEachExists(function(card){
-            if (this.bRunBg == false) {
-                card.body.moves = false
-            }else{
-                card.body.moves = true
-            };
-            if (card.y < 0) {
-                this.cardGroup.remove(card)
-            };
-        }, this);     
-
-        //与math碰撞
-        this.game.physics.arcade.overlap(this.player,this.mathGroup, function () {
-            this.bRunBg = false
-        }, null, this); 
-        this.mathGroup.forEachExists(function(math){
-            if (this.bRunBg == false) {
-                math.body.moves = false
-            }else{
-                math.body.moves = true
-            };
-            if (math.y < 0) {
-                this.mathGroup.remove(math)
-            };
-        }, this);                     
-
-        //与diff碰撞
-        this.game.physics.arcade.overlap(this.player,this.diffGroup, function () {
-            this.bRunBg = false
-        }, null, this); 
-        this.diffGroup.forEachExists(function(math){
-            if (this.bRunBg == false) {
-                math.body.moves = false
-            }else{
-                math.body.moves = true
-            };
-            if (math.y < 0) {
-                this.diffGroup.remove(math)
-            };
-        }, this); 
-
-        //与rotate碰撞
-        this.game.physics.arcade.overlap(this.player,this.rotateGroup, function () {
-            this.bRunBg = false
-        }, null, this); 
-        this.rotateGroup.forEachExists(function(math){
-            if (this.bRunBg == false) {
-                math.body.moves = false
-            }else{
-                math.body.moves = true
-            };
-            if (math.y < 0) {
-                this.rotateGroup.remove(math)
-            };
-        }, this);         
-
+        //与master碰撞
         this.game.physics.arcade.overlap(this.player,this.master, function () {
             this.quitGame();
-        }, null, this); //与master碰撞     
+        }, null, this);           
+        //与killitem碰撞
+        this.game.physics.arcade.collide(this.player,this.killGroup, function () {
+            this.quitGame();
+        }, null, this); 
+        //与hititem碰撞  
+        this.game.physics.arcade.collide(this.player,this.hitGroup, function () {
+            this.bRunBg = false
+        }, null, this); 
+
+        this.killGroup.forEachExists(function(item){
+            if (this.bRunBg == false) {
+                item.body.moves = false
+            }else{
+                item.body.moves = true
+            };            
+            if (item.y < 0) {
+                this.killGroup.remove(item)
+            };
+        }, this);         
+        
+        this.hitGroup.forEachExists(function(item){
+            if (this.bRunBg == false) {
+                item.body.moves = false
+            }else{
+                item.body.moves = true
+            };            
+            if (item.y < 0) {
+                item.kill();
+                this.hitGroup.remove(item)
+            };
+        }, this); 
+
+        if (this.bRunBg == false) {
+            // if (this.master.y > 0) {
+            //     this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
+            //     this.offsetY += 0.2
+            // } else{
+            //     this.master.y = this.master.y + 1 // 怪物逼近
+            // };
+        } else{
+            this.bg.updateBg()// 刷新背景图
+        };         
     },
 
     quitGame: function (pointer) {
@@ -259,76 +207,56 @@ BasicGame.Game.prototype = {
         // this.game.debug.spriteInfo(this.game, 64, 64);
     },
 
-    createEnemy: function () {
+    createEnemy: function (y) {
         // 暂时有敌人障碍，不出现先障碍
-        if (this.bRunBg == false) { return };
-
+        var nextEnemyY = 0
         var type = this.game.rnd.integerInRange(1, 8);
-        type = 8
-        var initpos = 80
+        // type = 1
         //石墙
         if (type == 1) {
-            if (this.fenceGroup.length > 0) {return};
-
-            var fence = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'fence', null, this.fenceGroup);
+            nextEnemyY = y+200 // 80是enemy高度
+            var fence = this.game.add.sprite(this.game.width/2, y+200, 'fence', null, this.hitGroup);
             fence.anchor.set(0.5)
             fence.scale.x = 4
             fence.inputEnabled = true;
             fence.events.onInputDown.add(function  () {
+                if (this.hitGroup.getFirstAlive() == fence) {
+                    this.bRunBg = true;
+                };
+                this.hitGroup.remove(fence)
                 fence.kill()
-                this.fenceGroup.remove(fence)
-                this.bRunBg = true;
-            }, this); 
-            this.fenceGroup.setAll('outOfBoundsKill',true);
-            this.fenceGroup.setAll('body.gravity.y', -60);                    
+            }, this);  
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.hitGroup.setAll('body.moves', false);                              
+
         };
 
         //飞鸟
         if (type == 2) {
-            if (this.birdGroup.length > 0) {return};
-
-            var bird = this.game.add.sprite(this.game.width, this.game.height+initpos, 'bird', null, this.birdGroup);
-            this.game.add.tween(bird).to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
-            // var tweenBird = this.game.add.tween(bird)
-            // tweenBird.to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut); 
-            // tweenBird.start();
-            // tweenBird.onComplete.addOnce(function () {
-            //     bird.angle += 180
-            //     var tweenBird = this.game.add.tween(bird)
-            //     tweenBird.to({ x: this.game.width }, 4000, Phaser.Easing.Quadratic.InOut); 
-            //     tweenBird.start();
-            //     tweenBird.onComplete.addOnce(function () {
-            //         bird.angle -= 180
-            //         var tweenBird = this.game.add.tween(bird)
-            //         tweenBird.to({ x: 0 }, 4000, Phaser.Easing.Quadratic.InOut); 
-            //         tweenBird.start();
-            //         tweenBird.onComplete.addOnce(function () {
-            //             bird.angle += 180
-            //         }, this);                                     
-            //     }, this);                    
-            // }, this);
+            nextEnemyY = y+200 // 80是enemy高度
+            var bird = this.game.add.sprite(this.game.width-200, y+200, 'bird', null, this.killGroup);
+            this.game.add.tween(bird).to({ x: 200 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
             bird.anchor.set(0.5)
             bird.animations.add('fly');
             bird.animations.play('fly', 30, true);
             bird.scale.set(1.2)     
             bird.inputEnabled = true;
             bird.events.onInputDown.add(function  () {
+                this.killGroup.remove(bird)
                 bird.kill()
-                this.birdGroup.remove(bird)
-                this.bRunBg = true;
             }, this); 
-            this.birdGroup.setAll('outOfBoundsKill',true);
-            this.birdGroup.setAll('body.gravity.y', -60);                     
+            this.killGroup.setAll('body.gravity.y', this.gamespeed);    
+            this.killGroup.setAll('body.moves', false);                              
+
         };
 
         //箭头
         if (type == 3) {
-            if (this.arrowGroup.length > 0) {return};
-
+            nextEnemyY = y+200 // 80是enemy高度
             var typeArrow = this.game.rnd.integerInRange(1, 2);
             var perX
 
-            var arrow = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'arrow', null, this.arrowGroup);
+            var arrow = this.game.add.sprite(this.game.width/2, y+200, 'arrow', null, this.hitGroup);
             arrow.anchor.set(0.5)
             arrow.scale.set(4)
             if (typeArrow == 1) {arrow.angle = 180};
@@ -347,10 +275,12 @@ BasicGame.Game.prototype = {
                         tweenArrow.to({ x: -500 }, 1000, Phaser.Easing.Quadratic.InOut); 
                         tweenArrow.start();
                         tweenArrow.onComplete.addOnce(function () {
+                            if (this.hitGroup.getFirstAlive() == arrow) {
+                                this.bRunBg = true;
+                            };
+                            this.hitGroup.remove(arrow)
                             arrow.kill()
-                            this.arrowGroup.remove(arrow)
                         }, this);           
-                        this.bRunBg = true;
                     };                    
 
                 } else{
@@ -360,93 +290,46 @@ BasicGame.Game.prototype = {
                         tweenArrow.to({ x: this.game.width+500 }, 1000, Phaser.Easing.Quadratic.InOut); 
                         tweenArrow.start();
                         tweenArrow.onComplete.addOnce(function () {
+                            if (this.hitGroup.getFirstAlive() == arrow) {
+                                this.bRunBg = true;
+                            };
+                            this.hitGroup.remove(arrow)
                             arrow.kill()
-                            this.arrowGroup.remove(arrow)
                         }, this);           
-                        this.bRunBg = true;
                     };
                 };
             }, this);  
-
-            var typeArrow1 = this.game.rnd.integerInRange(1, 2);
-            var perX1
-
-            var arrow1 = this.game.add.sprite(this.game.width/2, this.game.height+140, 'arrow', null, this.arrowGroup);
-            arrow1.anchor.set(0.5)
-            arrow1.scale.set(4)
-            if (typeArrow1 == 1) {arrow1.angle = 180};
-            arrow1.inputEnabled = true;
-            arrow1.input.allowHorizontalDrag = true;
-            arrow1.input.allowVerticalDrag = false;            
-            arrow1.input.enableDrag();
-            arrow1.events.onDragStart.add(function () {
-                perX1 = arrow1.x
-            }, this);
-            arrow1.events.onDragUpdate.add(function () {
-                if (typeArrow1 == 1) {
-                    if ((arrow1.x - perX1) > 0) {arrow1.x = perX1};
-                    if (Math.abs(arrow1.x - perX1) >= 80) {
-                        var tweenArrow1 = this.game.add.tween(arrow1)
-                        tweenArrow1.to({ x: -500 }, 1000, Phaser.Easing.Quadratic.InOut); 
-                        tweenArrow1.start();
-                        tweenArrow1.onComplete.addOnce(function () {
-                            arrow1.kill()
-                            this.arrowGroup.remove(arrow1)
-                        }, this);           
-                        this.bRunBg = true;
-                    };                    
-
-                } else{
-                    if ((arrow1.x - perX1) < 0) {arrow1.x = perX1};
-                    if (Math.abs(arrow1.x - perX1) >= 80) {
-                        var tweenArrow1 = this.game.add.tween(arrow1)
-                        tweenArrow1.to({ x: this.game.width+500 }, 1000, Phaser.Easing.Quadratic.InOut); 
-                        tweenArrow1.start();
-                        tweenArrow1.onComplete.addOnce(function () {
-                            arrow1.kill()
-                            this.arrowGroup.remove(arrow1)
-                        }, this);           
-                        this.bRunBg = true;
-                    };
-                };
-            }, this);              
-
-            this.arrowGroup.setAll('outOfBoundsKill',true);
-            this.arrowGroup.setAll('body.gravity.y', -60);
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);                              
+            this.hitGroup.setAll('body.moves', false);                              
         };    
 
         //左右锁
         if (type == 4) {
-            if (this.lockGroup.length > 0) {return};
-
+            nextEnemyY = y+400 // 80是enemy高度
             var locks = ['lock','lock1']
             var keys = ['key','key1']
 
             var lockType = this.game.rnd.integerInRange(0, 1)
-            var lock = this.game.add.sprite(this.game.width/2, this.game.height+150, locks[lockType], null, this.lockGroup);
+            var lock = this.game.add.sprite(this.game.width/2, y+400, locks[lockType], null, this.hitGroup);
             lock.anchor.set(0.5)
-            lock.scale.set(0.4)
 
             var keyTypeL = this.game.rnd.integerInRange(0, 1)
-            var keyL = this.game.add.sprite(0, this.game.height+initpos, keys[keyTypeL], null, this.lockGroup);
+            var keyL = this.game.make.sprite(-300, 100, keys[keyTypeL]);
+            lock.addChild(keyL);
             keyL.anchor.set(0.5)
-            keyL.scale.set(0.4)           
             keyL.inputEnabled = true;           
             keyL.input.enableDrag();
             var interacteFunc = function  () {
                 if (Phaser.Rectangle.intersects(lock.getBounds(), keyL.getBounds())) {
                     if (lockType == keyTypeL) {
+                        if (this.hitGroup.getFirstAlive() == lock) {
+                            this.bRunBg = true;
+                        };
+                        this.hitGroup.remove(lock);
                         lock.kill();
-                        keyL.kill();
-                        keyR.kill();
-                        this.bRunBg = true;
-                        this.lockGroup.remove(lock);
-                        this.lockGroup.remove(keyL);
-                        this.lockGroup.remove(keyR);
                     } else{
                         this.masterGo(50)
                         keyL.kill();
-                        this.lockGroup.remove(keyL);
                     };
                 };
             }
@@ -454,84 +337,75 @@ BasicGame.Game.prototype = {
             keyL.events.onDragStop.add(interacteFunc,this);  
 
             if (keyTypeL == 0) {keyTypeR = 1} else{keyTypeR = 0};
-            var keyR = this.game.add.sprite(this.game.width, this.game.height+initpos, keys[keyTypeR], null, this.lockGroup);
+            var keyR = this.game.make.sprite(300, 100, keys[keyTypeR]);
+            lock.addChild(keyR);
             keyR.anchor.set(0.5)
-            keyR.scale.set(0.4)              
             keyR.inputEnabled = true;           
             keyR.input.enableDrag();
             var interacteFuncR = function  () {
                 if (Phaser.Rectangle.intersects(lock.getBounds(), keyR.getBounds())) {
                     if (lockType == keyTypeR) {
+                        if (this.hitGroup.getFirstAlive() == lock) {
+                            this.bRunBg = true;
+                        };
+                        this.hitGroup.remove(lock);
                         lock.kill();
-                        keyL.kill();
-                        keyR.kill();
-                        this.bRunBg = true;
-                        this.lockGroup.remove(lock);
-                        this.lockGroup.remove(keyL);
-                        this.lockGroup.remove(keyR);
                     } else{
                         this.masterGo(50)
                         keyR.kill();
-                        this.lockGroup.remove(keyR);
                     };
                 };
             }
             keyR.events.onDragUpdate.add(interacteFuncR, this);             
-            keyR.events.onDragStop.add(interacteFuncR, this);             
+            keyR.events.onDragStop.add(interacteFuncR, this);   
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed); 
+            this.hitGroup.setAll('body.moves', false);                              
 
-            this.lockGroup.setAll('outOfBoundsKill',true);
-            this.lockGroup.setAll('body.gravity.y', -60);
         }; 
 
         //猜卡牌
         if (type == 5) {
-            if (this.cardGroup.length > 0) {return};
-
-            var poss = [this.game.width/4*1,this.game.width/4*2,this.game.width/4*3]
+            nextEnemyY = y+1000 // 80是enemy高度
+            var poss = [-300,0,300]
             var cards = ['card_26','card_28','card_38']
             cards = Phaser.ArrayUtils.shuffle(cards)
 
-            var cardBase = this.game.add.sprite(poss[2], this.game.height+initpos, cards[0], null, this.cardGroup);
+            var cardBase = this.game.add.sprite(this.game.width/2, y+1000, cards[0], null, this.hitGroup);
             cardBase.anchor.set(0.5)
             cardBase.scale.set(0.4)  
-            this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+            // this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
-            var card1 = this.game.add.sprite(poss[0], this.game.height+300, cards[0], null, this.cardGroup);
+            var card1 = this.game.add.sprite(poss[0], 300, cards[0]);
+            cardBase.addChild(card1);
             card1.anchor.set(0.5)
-            card1.scale.set(0.4)
             card1.inputEnabled = true;
             card1.events.onInputDown.add(function  () {
+                if (this.hitGroup.getFirstAlive() == cardBase) {
+                    this.bRunBg = true;
+                };
+                this.hitGroup.remove(cardBase)                
                 cardBase.kill();
-                card1.kill();
-                card2.kill();
-                card3.kill();
-                this.bRunBg = true;
-                this.cardGroup.remove(cardBase)
-                this.cardGroup.remove(card1)
-                this.cardGroup.remove(card2)
-                this.cardGroup.remove(card3)                
             }, this); 
-            var card2 = this.game.add.sprite(poss[1], this.game.height+300, cards[1], null, this.cardGroup);
+            var card2 = this.game.add.sprite(poss[1], 300, cards[1]);
+            cardBase.addChild(card2);
             card2.anchor.set(0.5)
-            card2.scale.set(0.4)            
-            var card3 = this.game.add.sprite(poss[2], this.game.height+300, cards[2], null, this.cardGroup);
+            var card3 = this.game.add.sprite(poss[2], 300, cards[2]);
+            cardBase.addChild(card3);
             card3.anchor.set(0.5)
-            card3.scale.set(0.4)  
-            this.game.time.events.loop(Phaser.Timer.SECOND*1.2, function () {
+            this.game.time.events.loop(Phaser.Timer.SECOND, function () {
                 poss = Phaser.ArrayUtils.shuffle(poss)
                 card1.x = poss[0]
                 card2.x = poss[1]
                 card3.x = poss[2]                                   
-            }, this);            
+            }, this);  
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);   
+            this.hitGroup.setAll('body.moves', false);                              
 
-            this.cardGroup.setAll('outOfBoundsKill',true);
-            this.cardGroup.setAll('body.gravity.y', -60);                      
         }; 
 
         //数学板
         if (type == 6) {
-            if (this.mathGroup.length > 0) {return};
-
+            nextEnemyY = y+300 // 80是enemy高度
             var textshow
             var right = false
             var initbord = function () {
@@ -549,7 +423,7 @@ BasicGame.Game.prototype = {
                 textshow.text = str
             }
 
-            var mathBord = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'fence', null, this.mathGroup);
+            var mathBord = this.game.add.sprite(this.game.width/2, y+300, 'fence', null, this.hitGroup);
             mathBord.anchor.set(0.5)
             mathBord.scale.set(4,2) 
 
@@ -561,9 +435,11 @@ BasicGame.Game.prototype = {
             
             var yes = this.game.make.button(0,0, 'yes',function () {
                 if (right == true) {
+                    if (this.hitGroup.getFirstAlive() == mathBord) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(mathBord)
                     mathBord.kill();
-                    this.bRunBg = true;
-                    this.mathGroup.remove(mathBord)
                 } else{
                     this.masterGo(50)
                     initbord()
@@ -576,9 +452,11 @@ BasicGame.Game.prototype = {
 
             var no = this.game.make.button(0,0, 'no',function () {
                 if (right == false) {
+                    if (this.hitGroup.getFirstAlive() == mathBord) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(mathBord)
                     mathBord.kill();
-                    this.bRunBg = true;
-                    this.mathGroup.remove(mathBord)
                 } else{
                     this.masterGo(50)
                     initbord()
@@ -587,16 +465,15 @@ BasicGame.Game.prototype = {
             mathBord.addChild(no);            
             no.scale.set(0.5,1)
             no.x = -80
-            no.y = 0            
+            no.y = 0     
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed); 
+            this.hitGroup.setAll('body.moves', false);                              
 
-            this.mathGroup.setAll('outOfBoundsKill',true);
-            this.mathGroup.setAll('body.gravity.y', -60);    
         };    
 
         //找不同
         if (type == 7) {
-            if (this.diffGroup.length > 0) {return};
-
+            nextEnemyY = y+600 // 80是enemy高度
             var pics = []
             for (var i = 0; i < 9; i++) {
                 if (i < 8) {
@@ -613,7 +490,7 @@ BasicGame.Game.prototype = {
                         ]
             poss = Phaser.ArrayUtils.shuffle(poss)
 
-            var diffBord = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'background', null, this.diffGroup);
+            var diffBord = this.game.add.sprite(this.game.width/2, y+600, 'background', null, this.hitGroup);
             diffBord.anchor.set(0.5)
             diffBord.scale.set(4) 
 
@@ -626,9 +503,11 @@ BasicGame.Game.prototype = {
                 } else{
                     btn = this.game.make.button(0,0, pics[i],function () {
                         this.masterBack(30)
+                        if (this.hitGroup.getFirstAlive() == diffBord) {
+                            this.bRunBg = true;
+                        };
+                        this.hitGroup.remove(diffBord)
                         diffBord.kill();
-                        this.bRunBg = true;
-                        this.diffGroup.remove(diffBord)
                     }, this, 2, 1, 0)
                 };
                 diffBord.addChild(btn);
@@ -636,36 +515,37 @@ BasicGame.Game.prototype = {
                 btn.scale.set(0.5)
                 btn.x = poss[i][0]
                 btn.y = poss[i][1]            
-            };        
+            }; 
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);   
+            this.hitGroup.setAll('body.moves', false);                              
 
-            this.diffGroup.setAll('outOfBoundsKill',true);
-            this.diffGroup.setAll('body.gravity.y', -60);    
         };    
 
         //主角旋转
         if (type == 8) {
-            if (this.rotateGroup.length > 0) {return};
-
-            var playerBord = this.game.add.sprite(this.game.width/2, this.game.height+initpos, 'player', null, this.rotateGroup);
+            nextEnemyY = y+150 // 80是enemy高度
+            var playerBord = this.game.add.sprite(this.game.width/2, y+150, 'player', null, this.hitGroup);
             playerBord.anchor.set(0.5)
             playerBord.scale.set(1) 
 
-            var angles = [-60,-45,-30,0,30,45,60,180]
+            var angles = [300,315,330,0,30,45,60,180]
             angles = Phaser.ArrayUtils.shuffle(angles)
             playerBord.angle = angles[0]
             this.game.time.events.loop(Phaser.Timer.SECOND/60, function () {
-                this.testtext.text = playerRotation
-                this.testtext1.text = angles[0]
                 if (playerRotation == angles[0]) {
+                    if (this.hitGroup.getFirstAlive() == playerBord) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(playerBord)
                     playerBord.kill();
-                    this.bRunBg = true;
-                    this.rotateGroup.remove(playerBord)
                 };
-            }, this);        
+            }, this);   
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);                        
+            this.hitGroup.setAll('body.moves', false);                              
 
-            this.rotateGroup.setAll('outOfBoundsKill',true);
-            this.rotateGroup.setAll('body.gravity.y', -60);    
-        };                  
+        };  
+
+        return nextEnemyY;                
     },
 
     masterGo:function (distance) {
