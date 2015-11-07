@@ -205,7 +205,7 @@ BasicGame.Game.prototype = {
 
     createEnemy: function (y) {
         var nextEnemyY = 0
-        var type = this.game.rnd.integerInRange(1, 10);
+        var type = this.game.rnd.integerInRange(1, 11);
         // type = 11
         //石墙
         if (type == 1) {
@@ -362,7 +362,6 @@ BasicGame.Game.prototype = {
 
             var cardBase = this.game.add.sprite(this.game.width/2, y+1000, cards[0], null, this.hitGroup);
             cardBase.anchor.set(0.5)
-            cardBase.scale.set(0.4)  
             // this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
             var card1 = this.game.add.sprite(poss[0], 300, cards[0]);
@@ -382,7 +381,7 @@ BasicGame.Game.prototype = {
             var card3 = this.game.add.sprite(poss[2], 300, cards[2]);
             cardBase.addChild(card3);
             card3.anchor.set(0.5)
-            this.game.time.events.loop(Phaser.Timer.SECOND, function () {
+            this.game.time.events.loop(Phaser.Timer.SECOND/3, function () {
                 poss = Phaser.ArrayUtils.shuffle(poss)
                 card1.x = poss[0]
                 card2.x = poss[1]
@@ -472,15 +471,14 @@ BasicGame.Game.prototype = {
             };
 
             var poss = [
-                        [-30,-30],[0,-30],[30,-30],
-                        [-30,0],[0,0],[30,0],
-                        [-30,30],[0,30],[30,30]
+                        [-90,-90],[0,-90],[90,-90],
+                        [-90,0],[0,0],[90,0],
+                        [-90,90],[0,90],[90,90]
                         ]
             poss = Phaser.ArrayUtils.shuffle(poss)
 
             var diffBord = this.game.add.sprite(this.game.width/2, y+600, 'background', null, this.hitGroup);
             diffBord.anchor.set(0.5)
-            diffBord.scale.set(4) 
 
             for (var i = 0; i < pics.length; i++) {
                 var btn
@@ -500,7 +498,6 @@ BasicGame.Game.prototype = {
                 };
                 diffBord.addChild(btn);
                 btn.anchor.set(0.5)
-                btn.scale.set(0.5)
                 btn.x = poss[i][0]
                 btn.y = poss[i][1]            
             }; 
@@ -560,7 +557,7 @@ BasicGame.Game.prototype = {
         if (type == 10) {
             nextEnemyY = y+200 // 80是enemy高度
 
-            var arrowBord = this.game.add.sprite(this.game.width/2, y+200, 'ground_wood_broken', null, this.hitGroup);
+            var arrowBord = this.game.add.sprite(this.game.width/2, y+200, 'touming', null, this.hitGroup);
             arrowBord.anchor.set(0.5)
             arrowBord.killL = false           
             arrowBord.killR = false           

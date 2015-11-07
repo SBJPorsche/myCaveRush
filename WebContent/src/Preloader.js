@@ -34,29 +34,17 @@ BasicGame.Preloader.prototype = {
 		this.load.image('key1', 'images/key1.png');		
 		this.load.image('yes', 'images/coin_bronze.png');		
 		this.load.image('no', 'images/coin_silver.png');		
-		this.load.image('dika', 'images/dika.png');		
 		this.load.image('card_26', 'images/card_26.png');		
 		this.load.image('card_28', 'images/card_28.png');		
 		this.load.image('card_38', 'images/card_38.png');		
 		this.load.image('drag', 'images/drag.png');		
-		this.load.image('zha', 'images/zha.png');		
-		this.load.image('lightingOpen', 'images/lightingOpen.png');		
+		this.load.image('touming', 'images/touming.png');		
+		this.load.image('zha', 'images/zha.png');			
 		this.load.image('lighting', 'images/lighting.png');		
 		this.load.image('ground_wood_broken', 'images/ground_wood_broken.png');		
 		this.load.image('player', 'images/com.tencent.plus.logo.png');
     	this.load.atlasJSONArray('bird', 'images/bird/bird.png', 'images/bird/bird.json');
-
-
-	    this.load.spritesheet('character', 'images/rpg_sprite_walk.png', 72, 96, 32);
-		this.load.image('background', 'images/background.png');
-		
-	    this.load.spritesheet('buttons', 'images/buttons.png', 215, 41);
-		this.load.spritesheet('githubstar', 'images/github.png', 377, 75);
-
-
-		this.load.image('compass', 'images/compass_rose.png');
-		this.load.image('touch_segment', 'images/touch_segment.png');
-		this.load.image('touch', 'images/touch.png');    	
+		this.load.image('background', 'images/background.png');   	
 	},
 
 	create: function () {
