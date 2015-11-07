@@ -38,6 +38,11 @@ BasicGame.Preloader.prototype = {
 		this.load.image('card_26', 'images/card_26.png');		
 		this.load.image('card_28', 'images/card_28.png');		
 		this.load.image('card_38', 'images/card_38.png');		
+		this.load.image('drag', 'images/drag.png');		
+		this.load.image('zha', 'images/zha.png');		
+		this.load.image('lightingOpen', 'images/lightingOpen.png');		
+		this.load.image('lighting', 'images/lighting.png');		
+		this.load.image('ground_wood_broken', 'images/ground_wood_broken.png');		
 		this.load.image('player', 'images/com.tencent.plus.logo.png');
     	this.load.atlasJSONArray('bird', 'images/bird/bird.png', 'images/bird/bird.json');
 

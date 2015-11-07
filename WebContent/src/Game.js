@@ -54,9 +54,6 @@ var last_x;
 var last_y;
 var last_z;
 
-// 为了增加这个例子的一点无聊趣味性，增加一个计数器
-var count = 0;
-
 function deviceMotionHandler(eventdata) {
     var acceleration = eventdata.accelerationIncludingGravity
     var curtime = new Date().getTime()
@@ -144,8 +141,7 @@ BasicGame.Game.prototype = {
         //数值
         this.scoreText.text = this.bg.distance
         this.testtext1.text = this.bRunBg
-        this.testtext.text = this.hitGroup.length+this.killGroup.length
-        this.testtext.text = 'yyy:'+bPlayerShade
+        // this.testtext.text = this.hitGroup.length+this.killGroup.length
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
 
@@ -186,12 +182,12 @@ BasicGame.Game.prototype = {
         }, this); 
 
         if (this.bRunBg == false) {
-            if (this.master.y > 0) {
-                this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
-                this.offsetY += 0.2
-            } else{
-                this.master.y = this.master.y + 1 // 怪物逼近
-            };
+            // if (this.master.y > 0) {
+            //     this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
+            //     this.offsetY += 0.2
+            // } else{
+            //     this.master.y = this.master.y + 1 // 怪物逼近
+            // };
         } else{
             this.bg.updateBg()// 刷新背景图
         };         
@@ -208,16 +204,14 @@ BasicGame.Game.prototype = {
     },
 
     createEnemy: function (y) {
-        // 暂时有敌人障碍，不出现先障碍
         var nextEnemyY = 0
-        var type = this.game.rnd.integerInRange(1, 9);
-        // type = 9
+        var type = this.game.rnd.integerInRange(1, 10);
+        // type = 11
         //石墙
         if (type == 1) {
             nextEnemyY = y+200 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+200, 'fence', null, this.hitGroup);
+            var fence = this.game.add.sprite(this.game.width/2, y+200, 'ground_wood_broken', null, this.hitGroup);
             fence.anchor.set(0.5)
-            fence.scale.x = 4
             fence.inputEnabled = true;
             fence.events.onInputDown.add(function  () {
                 if (this.hitGroup.getFirstAlive() == fence) {
@@ -256,7 +250,6 @@ BasicGame.Game.prototype = {
 
             var arrow = this.game.add.sprite(this.game.width/2, y+200, 'arrow', null, this.hitGroup);
             arrow.anchor.set(0.5)
-            arrow.scale.set(4)
             if (typeArrow == 1) {arrow.angle = 180};
             arrow.inputEnabled = true;
             arrow.input.allowHorizontalDrag = true;
@@ -561,7 +554,108 @@ BasicGame.Game.prototype = {
 
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
             this.hitGroup.setAll('body.moves', false);                              
-        };        
+        };     
+
+        //双向箭头
+        if (type == 10) {
+            nextEnemyY = y+200 // 80是enemy高度
+
+            var arrowBord = this.game.add.sprite(this.game.width/2, y+200, 'ground_wood_broken', null, this.hitGroup);
+            arrowBord.anchor.set(0.5)
+            arrowBord.killL = false           
+            arrowBord.killR = false           
+
+            var perX
+            var arrowL = this.game.make.sprite(180, 0, 'drag');
+            arrowBord.addChild(arrowL);
+            arrowL.anchor.set(0.5)
+            arrowL.angle = 180
+            arrowL.inputEnabled = true;
+            arrowL.input.allowHorizontalDrag = true;
+            arrowL.input.allowVerticalDrag = false;            
+            arrowL.input.enableDrag();
+            arrowL.events.onDragStart.add(function () {
+                perX = arrowL.x
+            }, this);
+            arrowL.events.onDragUpdate.add(function () {
+                if ((arrowL.x - perX) < 0) {arrowL.x = perX};
+                if (Math.abs(arrowL.x - perX) >= 80) {
+                    var tweenArrowL = this.game.add.tween(arrowL)
+                    tweenArrowL.to({ x: this.game.width+500 }, 1000, Phaser.Easing.Quadratic.InOut); 
+                    tweenArrowL.start();
+                    tweenArrowL.onComplete.addOnce(function () {
+                        arrowL.kill();
+                        arrowBord.killL = true
+                    }, this);           
+                };
+            }, this);  
+
+            var perX1
+            var arrowR = this.game.make.sprite(-180, 0, 'drag');
+            arrowBord.addChild(arrowR);
+            arrowR.anchor.set(0.5)
+            arrowR.inputEnabled = true;
+            arrowR.input.allowHorizontalDrag = true;
+            arrowR.input.allowVerticalDrag = false;            
+            arrowR.input.enableDrag();
+            arrowR.events.onDragStart.add(function () {
+                perX1 = arrowR.x
+            }, this);
+            arrowR.events.onDragUpdate.add(function () {
+                if ((arrowR.x - perX1) > 0) {arrowR.x = perX1};
+                if (Math.abs(arrowR.x - perX1) >= 80) {
+                    var tweenArrowR = this.game.add.tween(arrowR)
+                    tweenArrowR.to({ x: -500 }, 1000, Phaser.Easing.Quadratic.InOut); 
+                    tweenArrowR.start();
+                    tweenArrowR.onComplete.addOnce(function () {
+                        arrowR.kill();
+                        arrowBord.killR = true
+                    }, this);           
+                };  
+            }, this);  
+
+            this.game.time.events.loop(Phaser.Timer.SECOND/120, function () {
+                if (arrowBord.killL == true && arrowBord.killR == true) {
+                    if (this.hitGroup.getFirstAlive() == arrowBord) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(arrowBord)
+                    arrowBord.kill()
+                };
+            }, this);             
+
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);                              
+            this.hitGroup.setAll('body.moves', false);                              
+        };     
+
+        //闪电
+        if (type == 11) {
+            nextEnemyY = y+600 // 80是enemy高度
+            var fence = this.game.add.sprite(this.game.width/2, y+600, 'lighting', null, this.killGroup);
+            fence.anchor.set(0.5)
+
+            var perY
+            var zha = this.game.make.sprite(200, -80, 'zha')
+            fence.addChild(zha);
+            zha.anchor.set(0.5)
+            zha.inputEnabled = true;
+            zha.input.allowHorizontalDrag = false;
+            zha.input.allowVerticalDrag = true;            
+            zha.input.enableDrag();
+            zha.events.onDragStart.add(function () {
+                perY = zha.y
+            }, this);           
+            zha.events.onDragUpdate.add(function () {
+                if ((zha.y - perY) < 0) {zha.y = perY};
+                if ((zha.y-perY)>100) {
+                    this.killGroup.remove(fence)
+                    fence.kill()
+                };
+            }, this);              
+
+            this.killGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.killGroup.setAll('body.moves', false);                              
+        };                
 
         return nextEnemyY;                
     },

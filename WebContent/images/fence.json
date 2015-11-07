@@ -1,0 +1,28 @@
+{"frames": [
+
+{
+	"filename": "ground_wood.png",
+	"frame": {"x":383,"y":1,"w":380,"h":94},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":380,"h":94},
+	"sourceSize": {"w":380,"h":94}
+},
+{
+	"filename": "ground_wood_broken.png",
+	"frame": {"x":1,"y":1,"w":380,"h":94},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":380,"h":94},
+	"sourceSize": {"w":380,"h":94}
+}],
+"meta": {
+	"app": "http://www.codeandweb.com/texturepacker ",
+	"version": "1.0",
+	"image": "fence.png",
+	"format": "RGBA8888",
+	"size": {"w":764,"h":96},
+	"scale": "1",
+	"smartupdate": "$TexturePacker:SmartUpdate:92479468796d5bf2f85782867d4f1f7d:8a0eb4fbaf221a095e9ea728f283b278:e3867cbbfd361286286f4009cb6c9220$"
+}
+}
