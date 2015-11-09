@@ -39,6 +39,8 @@ BasicGame.Preloader.prototype = {
 		this.load.image('card_38', 'images/card_38.png');		
 		this.load.image('drag', 'images/drag.png');		
 		this.load.image('touming', 'images/touming.png');		
+		this.load.image('grass1', 'images/grass1.png');		
+		this.load.image('grass2', 'images/grass2.png');		
 		this.load.image('zha', 'images/zha.png');			
 		this.load.image('lighting', 'images/lighting.png');		
 		this.load.image('ground_wood_broken', 'images/ground_wood_broken.png');		
