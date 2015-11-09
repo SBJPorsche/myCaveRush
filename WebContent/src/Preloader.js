@@ -42,6 +42,42 @@ BasicGame.Preloader.prototype = {
 		this.load.image('grass1', 'images/grass1.png');		
 		this.load.image('grass2', 'images/grass2.png');		
 		this.load.image('zha', 'images/zha.png');			
+		this.load.image('text_0', 'images/text_0.png');			
+		this.load.image('text_1', 'images/text_1.png');			
+		this.load.image('text_2', 'images/text_2.png');			
+		this.load.image('text_3', 'images/text_3.png');			
+		this.load.image('text_4', 'images/text_4.png');			
+		this.load.image('text_5', 'images/text_5.png');			
+		this.load.image('text_6', 'images/text_6.png');			
+		this.load.image('text_7', 'images/text_7.png');			
+		this.load.image('text_8', 'images/text_8.png');			
+		this.load.image('text_9', 'images/text_9.png');			
+		this.load.image('a', 'images/letter/a.png');			
+		this.load.image('b', 'images/letter/b.png');			
+		this.load.image('c', 'images/letter/c.png');			
+		this.load.image('d', 'images/letter/d.png');			
+		this.load.image('e', 'images/letter/e.png');			
+		this.load.image('f', 'images/letter/f.png');			
+		this.load.image('g', 'images/letter/g.png');			
+		this.load.image('h', 'images/letter/h.png');			
+		this.load.image('i', 'images/letter/i.png');			
+		this.load.image('j', 'images/letter/j.png');			
+		this.load.image('k', 'images/letter/k.png');			
+		this.load.image('l', 'images/letter/l.png');			
+		this.load.image('m', 'images/letter/m.png');			
+		this.load.image('n', 'images/letter/n.png');			
+		this.load.image('o', 'images/letter/o.png');			
+		this.load.image('p', 'images/letter/p.png');			
+		this.load.image('q', 'images/letter/q.png');			
+		this.load.image('r', 'images/letter/r.png');			
+		this.load.image('s', 'images/letter/s.png');			
+		this.load.image('t', 'images/letter/t.png');			
+		this.load.image('u', 'images/letter/u.png');			
+		this.load.image('v', 'images/letter/v.png');			
+		this.load.image('w', 'images/letter/w.png');			
+		this.load.image('x', 'images/letter/x.png');			
+		this.load.image('y', 'images/letter/y.png');			
+		this.load.image('z', 'images/letter/z.png');			
 		this.load.image('lighting', 'images/lighting.png');		
 		this.load.image('ground_wood_broken', 'images/ground_wood_broken.png');		
 		this.load.image('player', 'images/com.tencent.plus.logo.png');
@@ -59,7 +95,8 @@ BasicGame.Preloader.prototype = {
 		if (this.cache.isSoundDecoded('titleMusic') && this.ready == false)
 		{
 			this.ready = true;
-			this.state.start('Game');
+			this.state.start('MainMenu');
+			// this.state.start('Game');
 		}
 
 	}

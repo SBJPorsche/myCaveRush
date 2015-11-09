@@ -29,6 +29,7 @@ BasicGame.Game = function (game) {
 
 var betadirection=0,gammadirection=0,alphadirection=0;
 var playerRotation = 0
+var surportRotation = true
 function deviceOrientationListener(event) {
   alphadirection = Math.round(event.alpha);
   betadirection = Math.round(event.beta);
@@ -38,6 +39,7 @@ function deviceOrientationListener(event) {
 if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", deviceOrientationListener);
 } else {
+    surportRotation = false
     alert("您使用的浏览器不支持Device Orientation特性");
 }
 
@@ -78,6 +80,7 @@ function deviceMotionHandler(eventdata) {
 if (window.DeviceMotionEvent) {
     window.addEventListener('devicemotion', deviceMotionHandler);
 } else{
+    surportRotation = false
     alert("移动浏览器不支持运动传感事件 ");
 };
 
@@ -203,7 +206,12 @@ BasicGame.Game.prototype = {
     createEnemy: function (y) {
         var nextEnemyY = 0
         var type = this.game.rnd.integerInRange(1, 12);
-        type = 12
+        if (surportRotation == false) {
+            if (type == 8 || type == 9) {
+                type = 12
+            };
+        };
+        // type = 12
         //石墙
         if (type == 1) {
             nextEnemyY = y+200 // 80是enemy高度
@@ -653,31 +661,62 @@ BasicGame.Game.prototype = {
 
         //排序1-9 a-z
         if (type == 12) {
-            nextEnemyY = y+600 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+600, 'lighting', null, this.killGroup);
-            fence.anchor.set(0.5)
+            nextEnemyY = y+500 // 80是enemy高度
 
-            var perY
-            var zha = this.game.make.sprite(200, -80, 'zha')
-            fence.addChild(zha);
-            zha.anchor.set(0.5)
-            zha.inputEnabled = true;
-            zha.input.allowHorizontalDrag = false;
-            zha.input.allowVerticalDrag = true;            
-            zha.input.enableDrag();
-            zha.events.onDragStart.add(function () {
-                perY = zha.y
-            }, this);           
-            zha.events.onDragUpdate.add(function () {
-                if ((zha.y - perY) < 0) {zha.y = perY};
-                if ((zha.y-perY)>100) {
-                    this.killGroup.remove(fence)
-                    fence.kill()
-                };
-            }, this);              
+            var arrowBord = this.game.add.sprite(this.game.width/2, y+500, 'touming', null, this.hitGroup);
+            arrowBord.anchor.set(0.5)
+            var typesort = this.game.rnd.integerInRange(0, 1);
+            var nums
+            if (typesort == 0) {
+                nums = ['text_0','text_1','text_2','text_3','text_4','text_5','text_6','text_7','text_8','text_9'] 
+            } else{
+                nums = ['a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'] 
+            };
 
-            this.killGroup.setAll('body.gravity.y', this.gamespeed);     
-            this.killGroup.setAll('body.moves', false);                              
+            nums = Phaser.ArrayUtils.shuffle(nums)
+            var sortNums = [nums[0],nums[1],nums[2],nums[3]]
+            sortNums.sort();
+
+            var poses = [-240,-80,80,240] 
+            poses = Phaser.ArrayUtils.shuffle(poses)
+
+            var btn1 = this.game.make.button(poses[0],0, sortNums[0],function () {
+                btn1.kill();
+                arrowBord.killbtn1 = true
+            }, this)
+            btn1.anchor.set(0.5)
+            arrowBord.addChild(btn1);
+            var btn2 = this.game.make.button(poses[1],0, sortNums[1],function () {
+                if (arrowBord.killbtn1 == true) {
+                    btn2.kill();
+                    arrowBord.killbtn2 = true
+                };                
+            }, this)
+            arrowBord.addChild(btn2);
+            btn2.anchor.set(0.5)
+            var btn3 = this.game.make.button(poses[2],0, sortNums[2],function () {
+                if (arrowBord.killbtn2 == true) {
+                    btn3.kill();
+                    arrowBord.killbtn3 = true
+                };                
+            }, this)
+            arrowBord.addChild(btn3);
+            btn3.anchor.set(0.5)
+            var btn4 = this.game.make.button(poses[3],0, sortNums[3],function () {
+                if (arrowBord.killbtn3 == true) {
+                    btn4.kill();
+                    if (this.hitGroup.getFirstAlive() == arrowBord) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(arrowBord)
+                    arrowBord.kill()                    
+                };                
+            }, this)
+            arrowBord.addChild(btn4);              
+            btn4.anchor.set(0.5)
+
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);                              
+            this.hitGroup.setAll('body.moves', false);                                           
         };                      
 
         return nextEnemyY;                
@@ -715,3 +754,4 @@ BasicGame.Game.prototype = {
         tweenplayer.start();        
     },    
 };
+
