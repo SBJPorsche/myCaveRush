@@ -22,11 +22,14 @@ BasicGame.Game = function (game) {
     this.bRunBg = true
     this.offsetY = 0
     this.gamespeed = -80
+    this.longest = 0
+    this.fuelCnt = 0 // 燃料
+    this.useEffect = false // 正在使用大招加速
 
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 };
-
+var maxFuelCnt = 3
 var betadirection=0,gammadirection=0,alphadirection=0;
 var playerRotation = 0
 var surportRotation = true
@@ -111,17 +114,34 @@ BasicGame.Game.prototype = {
         this.scoreText = this.game.add.text(this.game.width-100, 100, "0", this.style);
         this.scoreText.anchor.set(0.5); 
 
-        this.masterDistance = this.game.add.text(100, 100,'0', this.style);
-        this.masterDistance.anchor.set(0.5);                  
+        this.longestText = this.game.add.text(this.game.width-100, 160, "best score:0", this.style);
+        this.longestText.anchor.set(0.5);  
 
-        // this.testtext = this.game.add.text(100, 300,0, this.style);
-        // this.testtext.anchor.set(0.5);                
+        this.fuelCntText = this.game.add.text(100, 220, "fuel:0", this.style);
+        this.fuelCntText.anchor.set(0.5);  
+
+        this.rocket = this.game.add.button(100,220,'rocket',function () {
+            this.fuelCnt = 0
+            // 此处实现加速效果
+            this.fuelUp()
+        }, this)   
+        this.rocket.anchor.set(0.5)       
+        this.game.add.tween(this.rocket.scale).to({ x: 2,y:3 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+
+        this.masterDistance = this.game.add.text(100, 100,'0', this.style);
+        this.masterDistance.anchor.set(0.5);         
 
         this.game.time.events.loop(Phaser.Timer.SECOND*6, function () {
-            if (this.hitGroup.length+this.killGroup.length > 1) { return };
-            var newY = this.game.height
-            for (var i = 0; i < 3; i++) {
-               newY = this.createEnemy(newY) 
+            if (this.hitGroup.length+this.killGroup.length > 1) { 
+                if (this.fuelCnt < maxFuelCnt) {
+                    this.createfuel() 
+                };
+            }else{
+                if (this.useEffect == true) {return ;};
+                var newY = this.game.height
+                for (var i = 0; i < 3; i++) {
+                   newY = this.createEnemy(newY) 
+                };
             };
         }, this);   
         this.game.time.events.start();       
@@ -141,7 +161,8 @@ BasicGame.Game.prototype = {
 
         //数值
         this.scoreText.text = this.bg.distance
-        // this.testtext.text = this.hitGroup.length+this.killGroup.length
+        this.longestText.text = "best score:"+this.longest
+        this.fuelCntText.text = "fuel:"+this.fuelCnt
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
 
@@ -190,12 +211,22 @@ BasicGame.Game.prototype = {
             };
         } else{
             this.bg.updateBg()// 刷新背景图
-        };         
+        };  
+
+        if (this.fuelCnt == maxFuelCnt) {
+            this.rocket.visible = true 
+            this.fuelCntText.visible = false
+        } else{
+            this.rocket.visible = false 
+            this.fuelCntText.visible = true
+        };       
     },
 
     quitGame: function (pointer) {
         this.bRunBg = true
         this.offsetY = 0
+        this.fuelCnt = 0 // 燃料
+        if (this.bg.distance > this.longest) {this.longest = this.bg.distance};
         this.state.start('MainMenu');
     },
 
@@ -211,22 +242,25 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        // type = 12
+        // type = 1
         //石墙
         if (type == 1) {
             nextEnemyY = y+200 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+200, 'ground_wood_broken', null, this.hitGroup);
+            var fence = this.game.add.sprite(this.game.width/2, y+200, 'zhalans', 'ground_grass.png', this.hitGroup);
             fence.anchor.set(0.5)
             fence.inputEnabled = true;
             fence.events.onInputDown.add(function  () {
-                if (this.hitGroup.getFirstAlive() == fence) {
-                    this.bRunBg = true;
+                if (fence.frameName == 'ground_grass_broken.png') {
+                    if (this.hitGroup.getFirstAlive() == fence) {
+                        this.bRunBg = true;
+                    };
+                    this.hitGroup.remove(fence)
+                    fence.kill()
                 };
-                this.hitGroup.remove(fence)
-                fence.kill()
+                fence.frameName = 'ground_grass_broken.png'
             }, this);  
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
-            this.hitGroup.setAll('body.moves', false);                              
+            this.hitGroup.setAll('body.moves', false); 
         };
 
         //飞鸟
@@ -240,6 +274,7 @@ BasicGame.Game.prototype = {
             bird.scale.set(1.2)     
             bird.inputEnabled = true;
             bird.events.onInputDown.add(function  () {
+                bird.animations.stop();
                 this.killGroup.remove(bird)
                 bird.kill()
             }, this); 
@@ -324,7 +359,7 @@ BasicGame.Game.prototype = {
                         this.hitGroup.remove(lock);
                         lock.kill();
                     } else{
-                        this.masterGo(50)
+                        this.masterGo(10)
                         keyL.kill();
                     };
                 };
@@ -347,7 +382,7 @@ BasicGame.Game.prototype = {
                         this.hitGroup.remove(lock);
                         lock.kill();
                     } else{
-                        this.masterGo(50)
+                        this.masterGo(10)
                         keyR.kill();
                     };
                 };
@@ -387,6 +422,7 @@ BasicGame.Game.prototype = {
             cardBase.addChild(card3);
             card3.anchor.set(0.5)
             this.game.time.events.loop(Phaser.Timer.SECOND/1.5, function () {
+                this.masterGo(10)
                 poss = Phaser.ArrayUtils.shuffle(poss)
                 card1.x = poss[0]
                 card2.x = poss[1]
@@ -434,7 +470,7 @@ BasicGame.Game.prototype = {
                     this.hitGroup.remove(mathBord)
                     mathBord.kill();
                 } else{
-                    this.masterGo(50)
+                    this.masterGo(10)
                     initbord()
                 };
             }, this, 2, 1, 0)
@@ -451,7 +487,7 @@ BasicGame.Game.prototype = {
                     this.hitGroup.remove(mathBord)
                     mathBord.kill();
                 } else{
-                    this.masterGo(50)
+                    this.masterGo(10)
                     initbord()
                 };
             }, this, 2, 1, 0)
@@ -489,7 +525,7 @@ BasicGame.Game.prototype = {
                 var btn
                 if (i < 8) {
                     btn = this.game.make.button(0,0, pics[i],function () {
-                        this.masterGo(50)
+                        this.masterGo(10)
                     }, this, 2, 1, 0)
                 } else{
                     btn = this.game.make.button(0,0, pics[i],function () {
@@ -690,6 +726,8 @@ BasicGame.Game.prototype = {
                 if (arrowBord.killbtn1 == true) {
                     btn2.kill();
                     arrowBord.killbtn2 = true
+                }else{
+                    this.masterGo(20)
                 };                
             }, this)
             arrowBord.addChild(btn2);
@@ -698,6 +736,8 @@ BasicGame.Game.prototype = {
                 if (arrowBord.killbtn2 == true) {
                     btn3.kill();
                     arrowBord.killbtn3 = true
+                }else{
+                    this.masterGo(20)
                 };                
             }, this)
             arrowBord.addChild(btn3);
@@ -710,6 +750,8 @@ BasicGame.Game.prototype = {
                     };
                     this.hitGroup.remove(arrowBord)
                     arrowBord.kill()                    
+                }else{
+                    this.masterGo(20)
                 };                
             }, this)
             arrowBord.addChild(btn4);              
@@ -720,6 +762,40 @@ BasicGame.Game.prototype = {
         };                      
 
         return nextEnemyY;                
+    },
+
+    //燃料
+    createfuel:function () {
+        var type = this.game.rnd.integerInRange(1, 10);
+        var rl
+        if (type <= 5) {
+            rl = this.game.add.sprite(0,this.game.height+100,'ranliao')
+        } else{
+            rl = this.game.add.sprite(this.game.width,this.game.height+100,'ranliao')
+        };
+        rl.scale.set(4)
+        rl.inputEnabled = true;
+        rl.events.onInputDown.add(function  () {
+            rl.kill();
+            this.fuelCnt += 1
+        }, this); 
+        this.game.physics.enable(rl, Phaser.Physics.ARCADE); 
+        rl.body.gravity.y = this.gamespeed
+    },
+
+    fuelUp:function () {
+        this.masterBack(500)
+        this.useEffect = true
+        this.bRunBg = true
+        this.bg.offset = 20
+        this.killGroup.removeAll();
+        this.hitGroup.removeAll();
+        this.playerGo(100)
+        this.game.time.events.add(Phaser.Timer.SECOND * 4, function () {
+            this.useEffect = false
+            this.bg.offset = 4
+            this.playerBack(100)
+        }, this);
     },
 
     masterGo:function (distance) {

@@ -11,6 +11,7 @@ BasicGame.BackGround = function (game) {
     this.groupbg2.create(this.game.width/2,this.groupbg1.height,'walls').anchor.set(0.5,0)
 
     this.stop = false
+    this.offset = 4
 
     this.distance = 0
     return this;
@@ -22,8 +23,8 @@ BasicGame.BackGround.prototype.constructor = BasicGame.BackGround;
 BasicGame.BackGround.prototype.updateBg = function () {
     if (this.stop == false) {
         this.distance ++ 
-        this.groupbg1.y = this.groupbg1.y - 4
-        this.groupbg2.y = this.groupbg2.y - 4
+        this.groupbg1.y = this.groupbg1.y - this.offset
+        this.groupbg2.y = this.groupbg2.y - this.offset
         if (this.groupbg1.y < -this.groupbg1.height) {
             this.groupbg1.y = 0
         };

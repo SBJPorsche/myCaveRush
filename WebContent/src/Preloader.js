@@ -19,7 +19,6 @@ BasicGame.Preloader.prototype = {
 
 		this.load.image('titlepage', 'images/loadingImage.png');
 		this.load.image('gamebg', 'images/bg03a.png');
-		// this.load.atlas('playButton', 'images/play_button.png', 'images/play_button.json');
 		this.load.audio('titleMusic', 'sounds/bg1FightLoop.mp3');
 		// this.load.bitmapFont('caslon', 'fonts/caslon.png', 'fonts/caslon.xml');
 		this.load.image('startNormal', 'images/kp-qianghua.png');
@@ -78,10 +77,13 @@ BasicGame.Preloader.prototype = {
 		this.load.image('x', 'images/letter/x.png');			
 		this.load.image('y', 'images/letter/y.png');			
 		this.load.image('z', 'images/letter/z.png');			
+		this.load.image('ranliao', 'images/tinyShroom_red.png');			
 		this.load.image('lighting', 'images/lighting.png');		
+		this.load.image('rocket', 'images/rocket.png');		
 		this.load.image('ground_wood_broken', 'images/ground_wood_broken.png');		
 		this.load.image('player', 'images/com.tencent.plus.logo.png');
     	this.load.atlasJSONArray('bird', 'images/bird/bird.png', 'images/bird/bird.json');
+    	this.load.atlas('zhalans', 'images/zhalan.png', 'images/zhalan.json');
 		this.load.image('background', 'images/background.png');   	
 	},
 
@@ -95,8 +97,7 @@ BasicGame.Preloader.prototype = {
 		if (this.cache.isSoundDecoded('titleMusic') && this.ready == false)
 		{
 			this.ready = true;
-			this.state.start('MainMenu');
-			// this.state.start('Game');
+			this.state.start('Game');
 		}
 
 	}
