@@ -13,8 +13,8 @@ BasicGame.Preloader.prototype = {
 	preload: function () {
 		this.background = this.add.sprite(this.world.centerX, this.world.centerY, 'preloaderBackground');
 		this.background.anchor.set(0.5,0.5)
-		this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloaderBar');
-		this.preloadBar.anchor.set(0.5,0.5)
+		this.preloadBar = this.add.sprite(this.world.centerX-80, this.world.centerY, 'preloaderBar');
+		this.preloadBar.anchor.set(0,0.5)
 		this.load.setPreloadSprite(this.preloadBar);
 
 		this.load.image('titlepage', 'images/loadingImage.png');
@@ -22,7 +22,6 @@ BasicGame.Preloader.prototype = {
 		this.load.audio('titleMusic', 'sounds/bg1FightLoop.mp3');
 		// this.load.bitmapFont('caslon', 'fonts/caslon.png', 'fonts/caslon.xml');
 		this.load.image('startNormal', 'images/kp-qianghua.png');
-		this.load.image('walls', 'images/walls.png');
 		this.load.image('fence', 'images/kp-qianghuaan.png');
 		this.load.image('ropeNode', 'images/ropeNode.png');
 		this.load.image('master', 'images/wingMan2.png');

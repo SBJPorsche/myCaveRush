@@ -29,7 +29,7 @@ BasicGame.Game = function (game) {
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 };
-var maxFuelCnt = 3
+var maxFuelCnt = 1
 var betadirection=0,gammadirection=0,alphadirection=0;
 var playerRotation = 0
 var surportRotation = true
@@ -96,7 +96,10 @@ BasicGame.Game.prototype = {
         this.killGroup.enableBody = true;       
 
         this.hitGroup = this.game.add.group();
-        this.hitGroup.enableBody = true;            
+        this.hitGroup.enableBody = true;   
+
+        this.toolsGroup = this.game.add.group();
+        this.toolsGroup.enableBody = true;         
 
         this.player = new BasicGame.Player(this.game, this.game.width/2, this.game.height/2-200)
         this.game.add.existing(this.player);    
@@ -105,10 +108,10 @@ BasicGame.Game.prototype = {
         this.master.anchor.set(0.5) 
         this.game.physics.enable(this.master, Phaser.Physics.ARCADE); 
         this.game.time.events.loop(Phaser.Timer.SECOND, function () {
-            if (this.bRunBg == true) {
-                this.masterGo(2)
+            if (this.useEffect == false) {
+                this.master.y += 1
             };
-        }, this);   
+        }, this); 
 
         this.style = {font: '25px Arial', fill: '#ffffff', align: 'center', fontWeight: 'bold', stroke: '#000000', strokeThickness: 6};
         this.scoreText = this.game.add.text(this.game.width-100, 100, "0", this.style);
@@ -126,16 +129,21 @@ BasicGame.Game.prototype = {
             this.fuelUp()
         }, this)   
         this.rocket.anchor.set(0.5)       
-        this.game.add.tween(this.rocket.scale).to({ x: 2,y:3 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+        this.game.add.tween(this.rocket.scale).to({ x: 1.2,y:1.4 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
         this.masterDistance = this.game.add.text(100, 100,'0', this.style);
-        this.masterDistance.anchor.set(0.5);         
+        this.masterDistance.anchor.set(0.5);     
+
+        this.game.time.events.loop(Phaser.Timer.SECOND*4, function () {
+            if (this.killGroup.length+this.hitGroup.length <= 0) {                
+                if (this.fuelCnt < maxFuelCnt && this.useEffect == false) {
+                    this.createfuel() 
+                };
+            };
+        }, this);   
 
         this.game.time.events.loop(Phaser.Timer.SECOND*6, function () {
             if (this.hitGroup.length+this.killGroup.length > 1) { 
-                if (this.fuelCnt < maxFuelCnt) {
-                    this.createfuel() 
-                };
             }else{
                 if (this.useEffect == true) {return ;};
                 var newY = this.game.height
@@ -202,12 +210,24 @@ BasicGame.Game.prototype = {
             };
         }, this); 
 
+        this.toolsGroup.forEachExists(function(item){
+            if (this.bRunBg == false) {
+                item.body.moves = false
+            }else{
+                item.body.moves = true
+            };            
+            if (item.y < 0) {
+                item.kill();
+                this.toolsGroup.remove(item)
+            };
+        }, this);         
+
         if (this.bRunBg == false) {
             if (this.master.y > 0) {
-                this.master.y = this.master.y + 1 + this.offsetY // 怪物逼近
-                this.offsetY += 0.2
+                this.master.y = this.master.y + 0.5 + this.offsetY // 怪物逼近
+                this.offsetY += 0.05
             } else{
-                this.master.y = this.master.y + 1 // 怪物逼近
+                this.master.y = this.master.y + 0.5 // 怪物逼近
             };
         } else{
             this.bg.updateBg()// 刷新背景图
@@ -242,7 +262,7 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        // type = 1
+        // type = 4
         //石墙
         if (type == 1) {
             nextEnemyY = y+200 // 80是enemy高度
@@ -365,7 +385,6 @@ BasicGame.Game.prototype = {
                 };
             }
             keyL.events.onDragUpdate.add(interacteFunc,this);  
-            keyL.events.onDragStop.add(interacteFunc,this);  
 
             if (keyTypeL == 0) {keyTypeR = 1} else{keyTypeR = 0};
             var keyR = this.game.make.sprite(300, 100, keys[keyTypeR]);
@@ -386,21 +405,20 @@ BasicGame.Game.prototype = {
                         keyR.kill();
                     };
                 };
-            }
+            }   
             keyR.events.onDragUpdate.add(interacteFuncR, this);             
-            keyR.events.onDragStop.add(interacteFuncR, this);   
             this.hitGroup.setAll('body.gravity.y', this.gamespeed); 
             this.hitGroup.setAll('body.moves', false);                              
         }; 
 
         //猜卡牌
         if (type == 5) {
-            nextEnemyY = y+800 // 80是enemy高度
+            nextEnemyY = y+1800 // 80是enemy高度
             var poss = [-150,0,150]
             var cards = ['card_26','card_28','card_38']
             cards = Phaser.ArrayUtils.shuffle(cards)
 
-            var cardBase = this.game.add.sprite(this.game.width/2, y+800, cards[0], null, this.hitGroup);
+            var cardBase = this.game.add.sprite(this.game.width/2, y+1800, cards[0], null, this.hitGroup);
             cardBase.anchor.set(0.5)
             // this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
@@ -501,7 +519,7 @@ BasicGame.Game.prototype = {
 
         //找不同
         if (type == 7) {
-            nextEnemyY = y+1400 // 80是enemy高度
+            nextEnemyY = y+1800 // 80是enemy高度
             var pics = []
             for (var i = 0; i < 9; i++) {
                 if (i < 8) {
@@ -518,7 +536,7 @@ BasicGame.Game.prototype = {
                         ]
             poss = Phaser.ArrayUtils.shuffle(poss)
 
-            var diffBord = this.game.add.sprite(this.game.width/2, y+1400, 'background', null, this.hitGroup);
+            var diffBord = this.game.add.sprite(this.game.width/2, y+1800, 'background', null, this.hitGroup);
             diffBord.anchor.set(0.5)
 
             for (var i = 0; i < pics.length; i++) {
@@ -769,32 +787,44 @@ BasicGame.Game.prototype = {
         var type = this.game.rnd.integerInRange(1, 10);
         var rl
         if (type <= 5) {
-            rl = this.game.add.sprite(0,this.game.height+100,'ranliao')
+            rl = this.game.add.sprite(50,this.game.height-100,'ranliao', null, this.toolsGroup)
         } else{
-            rl = this.game.add.sprite(this.game.width,this.game.height+100,'ranliao')
+            rl = this.game.add.sprite(this.game.width-50,this.game.height-100,'ranliao', null, this.toolsGroup)
         };
-        rl.scale.set(4)
+        rl.anchor.set(0.5)
+        rl.scale.set(0.1)
+        var tweenFuel = this.game.add.tween(rl.scale)
+        tweenFuel.to({ x: 3,y:3 }, 1000, Phaser.Easing.Quadratic.BackOut); 
+        tweenFuel.start();
+
         rl.inputEnabled = true;
         rl.events.onInputDown.add(function  () {
+            this.toolsGroup.remove(rl)
             rl.kill();
             this.fuelCnt += 1
         }, this); 
-        this.game.physics.enable(rl, Phaser.Physics.ARCADE); 
-        rl.body.gravity.y = this.gamespeed
+        this.toolsGroup.setAll('body.gravity.y', this.gamespeed);                        
+        this.toolsGroup.setAll('body.moves', false);    
     },
 
     fuelUp:function () {
-        this.masterBack(500)
+        var up = true
         this.useEffect = true
         this.bRunBg = true
-        this.bg.offset = 20
+        this.masterBack(200,9000)
         this.killGroup.removeAll();
         this.hitGroup.removeAll();
-        this.playerGo(100)
-        this.game.time.events.add(Phaser.Timer.SECOND * 4, function () {
-            this.useEffect = false
-            this.bg.offset = 4
-            this.playerBack(100)
+        this.game.time.events.repeat(Phaser.Timer.SECOND/8, 40, function () {
+            if (this.bg.offset < 44 && up == true) {
+                this.bg.offset += 2
+            } else{
+                up = false
+                this.bg.offset -= 2
+            };
+            if (this.bg.offset <= 4) {
+                this.useEffect = false
+                this.bg.offset = 4
+            };
         }, this);
     },
 
@@ -806,12 +836,12 @@ BasicGame.Game.prototype = {
         tweenMaster.start();
     },
 
-    masterBack:function (distance) {
+    masterBack:function (distance,cd) {
         distance = distance || 20
         var toY = this.master.y - distance
         var tweenMaster = this.game.add.tween(this.master)
-        tweenMaster.to({ y: toY }, 4000, Phaser.Easing.Quadratic.InOut); 
-        tweenMaster.start();        
+        tweenMaster.to({ y: toY }, cd || 4000, Phaser.Easing.Quadratic.InOut); 
+        tweenMaster.start();  
     },
 
     playerGo:function (distance) {

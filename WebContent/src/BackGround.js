@@ -4,11 +4,9 @@ BasicGame.BackGround = function (game) {
 
     this.groupbg1 = game.add.group()
     this.groupbg1.create(this.game.width/2,0,'preloaderBackground').anchor.set(0.5,0)
-    this.groupbg1.create(this.game.width/2,0,'walls').anchor.set(0.5,0)
 
     this.groupbg2 = game.add.group()
     this.groupbg2.create(this.game.width/2,this.groupbg1.height,'preloaderBackground').anchor.set(0.5,0)
-    this.groupbg2.create(this.game.width/2,this.groupbg1.height,'walls').anchor.set(0.5,0)
 
     this.stop = false
     this.offset = 4
