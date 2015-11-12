@@ -29,7 +29,7 @@ BasicGame.Game = function (game) {
     //  You can use any of these from any function within this State.
     //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 };
-var maxFuelCnt = 1
+var maxFuelCnt = 3
 var betadirection=0,gammadirection=0,alphadirection=0;
 var playerRotation = 0
 var surportRotation = true
@@ -420,7 +420,7 @@ BasicGame.Game.prototype = {
             var cards = ['card_26','card_28','card_38']
             cards = Phaser.ArrayUtils.shuffle(cards)
 
-            var cardBase = this.game.add.sprite(this.game.width/2, y+1800, cards[0], null, this.hitGroup);
+            var cardBase = this.game.add.sprite(this.game.width/2, y+200, cards[0], null, this.hitGroup);
             cardBase.anchor.set(0.5)
             // this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
@@ -538,7 +538,7 @@ BasicGame.Game.prototype = {
                         ]
             poss = Phaser.ArrayUtils.shuffle(poss)
 
-            var diffBord = this.game.add.sprite(this.game.width/2, y+1800, 'background', null, this.hitGroup);
+            var diffBord = this.game.add.sprite(this.game.width/2, y+200, 'background', null, this.hitGroup);
             diffBord.anchor.set(0.5)
 
             for (var i = 0; i < pics.length; i++) {
