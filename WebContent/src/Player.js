@@ -1,6 +1,6 @@
 BasicGame.Player = function (game, x, y) {
 
-    Phaser.Sprite.call(this, game, x, y, 'player');
+    Phaser.Sprite.call(this, game, x, y, 'players',GlobalPlayerFrame);
 
     this.anchor.set(0.5)
 

@@ -12,14 +12,13 @@ BasicGame.MainMenu.prototype = {
 		this.music = this.add.audio('titleMusic');
 		this.music.play();
 
-		this.add.sprite(this.world.centerX,this.world.centerY, 'titlepage').anchor.set(0.5,0.5);
+		this.add.sprite(this.world.centerX,this.world.centerY, 'preloaderBackground').anchor.set(0.5,0.5);
+		this.chooseRole = this.add.button(this.game.width-100,100, 'startNormal',this.chooseRoleFunc, this, 2, 1, 0).anchor.set(0.5,0.5);
 		this.playButton = this.add.button(this.world.centerX,this.world.centerY, 'startNormal',this.startGame, this, 2, 1, 0).anchor.set(0.5,0.5);
 	},
 
 	update: function () {
-
 		//	Do some nice funky main menu effect here
-
 	},
 
 	startGame: function (pointer) {
@@ -28,6 +27,8 @@ BasicGame.MainMenu.prototype = {
 		this.music.stop();
 		//	And start the actual game
 		this.state.start('Game');
+	},
+	chooseRoleFunc: function () {
+		this.state.start('ChoosePlayer');
 	}
-
 };

@@ -128,8 +128,8 @@ BasicGame.Game.prototype = {
             // 此处实现加速效果
             this.fuelUp()
         }, this)   
-        this.rocket.anchor.set(0.5)       
-        this.game.add.tween(this.rocket.scale).to({ x: 1.2,y:1.4 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+        this.rocket.anchor.set(1.2)       
+        // this.game.add.tween(this.rocket.scale).to({ x: 1.2,y:1.4 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
         this.masterDistance = this.game.add.text(100, 100,'0', this.style);
         this.masterDistance.anchor.set(0.5);     
@@ -167,9 +167,9 @@ BasicGame.Game.prototype = {
         };
         playerRotation = Math.ceil((this.player.angle+360)%360)
 
-        //数值
+        //数值 this.game.playerFrame
         this.scoreText.text = this.bg.distance
-        this.longestText.text = "best score:"+this.longest
+        this.longestText.text = "best score:"+this.longest 
         this.fuelCntText.text = "fuel:"+this.fuelCnt
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
@@ -223,11 +223,13 @@ BasicGame.Game.prototype = {
         }, this);         
 
         if (this.bRunBg == false) {
-            if (this.master.y > 0) {
-                this.master.y = this.master.y + 0.5 + this.offsetY // 怪物逼近
-                this.offsetY += 0.05
-            } else{
-                this.master.y = this.master.y + 0.5 // 怪物逼近
+            if (this.useEffect == false) {
+                if (this.master.y > 0) {
+                    this.master.y = this.master.y + 0.5 + this.offsetY // 怪物逼近
+                    this.offsetY += 0.05
+                } else{
+                    this.master.y = this.master.y + 0.5 // 怪物逼近
+                };
             };
         } else{
             this.bg.updateBg()// 刷新背景图
@@ -379,7 +381,7 @@ BasicGame.Game.prototype = {
                         this.hitGroup.remove(lock);
                         lock.kill();
                     } else{
-                        this.masterGo(10)
+                        // this.masterGo(10)
                         keyL.kill();
                     };
                 };
@@ -401,7 +403,7 @@ BasicGame.Game.prototype = {
                         this.hitGroup.remove(lock);
                         lock.kill();
                     } else{
-                        this.masterGo(10)
+                        // this.masterGo(10)
                         keyR.kill();
                     };
                 };
@@ -440,7 +442,7 @@ BasicGame.Game.prototype = {
             cardBase.addChild(card3);
             card3.anchor.set(0.5)
             this.game.time.events.loop(Phaser.Timer.SECOND/1.5, function () {
-                this.masterGo(10)
+                // this.masterGo(10)
                 poss = Phaser.ArrayUtils.shuffle(poss)
                 card1.x = poss[0]
                 card2.x = poss[1]
@@ -488,7 +490,7 @@ BasicGame.Game.prototype = {
                     this.hitGroup.remove(mathBord)
                     mathBord.kill();
                 } else{
-                    this.masterGo(10)
+                    // this.masterGo(10)
                     initbord()
                 };
             }, this, 2, 1, 0)
@@ -505,7 +507,7 @@ BasicGame.Game.prototype = {
                     this.hitGroup.remove(mathBord)
                     mathBord.kill();
                 } else{
-                    this.masterGo(10)
+                    // this.masterGo(10)
                     initbord()
                 };
             }, this, 2, 1, 0)
@@ -543,11 +545,11 @@ BasicGame.Game.prototype = {
                 var btn
                 if (i < 8) {
                     btn = this.game.make.button(0,0, pics[i],function () {
-                        this.masterGo(10)
+                        // this.masterGo(10)
                     }, this, 2, 1, 0)
                 } else{
                     btn = this.game.make.button(0,0, pics[i],function () {
-                        this.masterBack(30)
+                        // this.masterBack(30)
                         if (this.hitGroup.getFirstAlive() == diffBord) {
                             this.bRunBg = true;
                         };
@@ -745,7 +747,7 @@ BasicGame.Game.prototype = {
                     btn2.kill();
                     arrowBord.killbtn2 = true
                 }else{
-                    this.masterGo(20)
+                    // this.masterGo(20)
                 };                
             }, this)
             arrowBord.addChild(btn2);
@@ -755,7 +757,7 @@ BasicGame.Game.prototype = {
                     btn3.kill();
                     arrowBord.killbtn3 = true
                 }else{
-                    this.masterGo(20)
+                    // this.masterGo(20)
                 };                
             }, this)
             arrowBord.addChild(btn3);
@@ -769,7 +771,7 @@ BasicGame.Game.prototype = {
                     this.hitGroup.remove(arrowBord)
                     arrowBord.kill()                    
                 }else{
-                    this.masterGo(20)
+                    // this.masterGo(20)
                 };                
             }, this)
             arrowBord.addChild(btn4);              

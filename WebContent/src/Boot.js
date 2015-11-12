@@ -7,9 +7,12 @@ BasicGame = {
     music: null,
 
     /* Your game can check BasicGame.orientated in internal loops to know if it should pause or not */
-    orientated: false
+    orientated: false,
+
 
 };
+
+GlobalPlayerFrame = 'player1.png',
 
 BasicGame.Boot = function (game) {
 };
