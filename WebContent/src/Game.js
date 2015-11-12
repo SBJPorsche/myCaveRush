@@ -569,7 +569,7 @@ BasicGame.Game.prototype = {
         //主角旋转
         if (type == 8) {
             nextEnemyY = y+150 // 80是enemy高度
-            var playerBord = this.game.add.sprite(this.game.width/2, y+150, 'player', null, this.hitGroup);
+            var playerBord = this.game.add.sprite(this.game.width/2, y+150, 'players',GlobalPlayerFrame, this.hitGroup);
             playerBord.anchor.set(0.5)
             playerBord.scale.set(1) 
 
