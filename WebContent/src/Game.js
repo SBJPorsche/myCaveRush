@@ -124,9 +124,11 @@ BasicGame.Game.prototype = {
         this.fuelCntText.anchor.set(0.5);  
 
         this.rocket = this.game.add.button(100,220,'rocket',function () {
-            this.fuelCnt = 0
-            // 此处实现加速效果
-            this.fuelUp()
+            if (this.useEffect == false) {
+                this.fuelCnt = 0
+                // 此处实现加速效果
+                this.fuelUp()
+            };
         }, this)   
         this.rocket.anchor.set(1.2)       
         // this.game.add.tween(this.rocket.scale).to({ x: 1.2,y:1.4 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
@@ -186,6 +188,12 @@ BasicGame.Game.prototype = {
         this.game.physics.arcade.collide(this.player,this.hitGroup, function () {
             this.bRunBg = false
         }, null, this); 
+        //与tools碰撞  
+        this.game.physics.arcade.collide(this.player,this.toolsGroup, function () {
+            if (this.toolsGroup.getFirstAlive().name == 'portal' && this.useEffect == false) {
+                this.PortalUp(this.toolsGroup.getFirstAlive())
+            };
+        }, null, this);         
 
         this.killGroup.forEachExists(function(item){
             if (this.bRunBg == false) {
@@ -258,13 +266,13 @@ BasicGame.Game.prototype = {
 
     createEnemy: function (y) {
         var nextEnemyY = 0
-        var type = this.game.rnd.integerInRange(1, 12);
+        var type = this.game.rnd.integerInRange(1, 13);
         if (surportRotation == false) {
             if (type == 8 || type == 9) {
                 type = 12
             };
         };
-        // type = 4
+        // type = 11
         //石墙
         if (type == 1) {
             nextEnemyY = y+200 // 80是enemy高度
@@ -689,12 +697,17 @@ BasicGame.Game.prototype = {
         //闪电
         if (type == 11) {
             nextEnemyY = y+600 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+600, 'lighting', null, this.killGroup);
+            var fence = this.game.add.sprite(this.game.width/2, y+600, 'fire', null, this.killGroup);
             fence.anchor.set(0.5)
+            fence.scale.set(2)
+            fence.body.setSize(158, 30,0, 0);
+            fence.animations.add('fire');
+            fence.animations.play('fire', 30, true);              
 
             var perY
-            var zha = this.game.make.sprite(200, -80, 'zha')
+            var zha = this.game.make.sprite(150, -80, 'zha')
             fence.addChild(zha);
+            zha.scale.set(0.5)
             zha.anchor.set(0.5)
             zha.inputEnabled = true;
             zha.input.allowHorizontalDrag = false;
@@ -779,14 +792,109 @@ BasicGame.Game.prototype = {
 
             this.hitGroup.setAll('body.gravity.y', this.gamespeed);                              
             this.hitGroup.setAll('body.moves', false);                                           
-        };                      
+        };     
+
+        //移动闪电
+        if (type == 13) {
+            nextEnemyY = y+600 // 80是enemy高度
+            var fence = this.game.add.sprite(this.game.width/2, y+600, 'lightning', null, this.killGroup);
+            fence.anchor.set(0.5)
+            fence.animations.add('lingining');
+            fence.animations.play('lingining', 30, true);            
+
+            var type = this.game.rnd.integerInRange(1, 2);
+            if (type == 1) {
+                var btn1 = this.game.make.sprite(200, 0, 'yes')
+                fence.addChild(btn1);
+                btn1.anchor.set(0.5)
+                btn1.scale.set(2)
+                var typepos = this.game.rnd.integerInRange(1, 2);
+                if (typepos == 1) {btn1.x = -200};
+                btn1.inputEnabled = true;
+                btn1.events.onInputUp.add(function () {
+                    fence.visible = true
+                });
+                btn1.events.onInputOver.add(function () {
+                    fence.visible = false
+                    this.bRunBg = true;
+                });     
+                btn1.events.onInputOut.add(function () {
+                    fence.visible = false
+                });                          
+            } else{
+                var btn1,btn2
+                btn1 = this.game.make.sprite(200, 0, 'yes')
+                fence.addChild(btn1);
+                btn1.anchor.set(0.5)
+                btn1.scale.set(2)
+                btn1.onput = false
+                btn1.inputEnabled = true;
+                btn1.events.onInputUp.add(function () {
+                    btn1.onput = false
+                    fence.visible = true
+                });
+                btn1.events.onInputOver.add(function () {
+                    this.bRunBg = true;
+                    btn1.onput = true
+                    if (btn2.onput == true) {
+                        fence.visible = false
+                    };
+                });     
+                btn1.events.onInputOut.add(function () {
+                    btn1.onput = true
+                    if (btn2.onput == true) {
+                        fence.visible = false
+                    };
+                });   
+
+                btn2 = this.game.make.sprite(-200, 0, 'yes')
+                fence.addChild(btn2);
+                btn2.anchor.set(0.5)
+                btn2.scale.set(2)
+                btn2.onput = false
+                btn2.inputEnabled = true;
+                btn2.events.onInputUp.add(function () {
+                    btn2.onput = false
+                    fence.visible = true
+                });
+                btn2.events.onInputOver.add(function () {
+                    this.bRunBg = true;
+                    btn2.onput = true
+                    if (btn1.onput == true) {
+                        fence.visible = false
+                    };
+                });     
+                btn2.events.onInputOut.add(function () {
+                    btn2.onput = true
+                    if (btn1.onput == true) {
+                        fence.visible = false
+                    };
+                });                   
+            };
+
+            this.killGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.killGroup.setAll('body.moves', false);                              
+        };   
 
         return nextEnemyY;                
     },
 
     //燃料
     createfuel:function () {
-        var type = this.game.rnd.integerInRange(1, 10);
+        var type = this.game.rnd.integerInRange(1, 15);
+        // 传送门
+        if (type > 10) {
+            var rl = this.game.add.sprite(this.game.width-50,this.game.height-100,'no', null, this.toolsGroup)
+            rl.inputEnabled = true;
+            rl.events.onInputDown.add(function  () {
+                this.toolsGroup.remove(rl)
+                rl.kill();
+                this.createPortal()
+            }, this);    
+            this.toolsGroup.setAll('body.gravity.y', this.gamespeed);                        
+            this.toolsGroup.setAll('body.moves', false);                         
+            return ;
+        };
         var rl
         if (type <= 5) {
             rl = this.game.add.sprite(50,this.game.height-100,'ranliao', null, this.toolsGroup)
@@ -809,6 +917,23 @@ BasicGame.Game.prototype = {
         this.toolsGroup.setAll('body.moves', false);    
     },
 
+    //传送门 heidong
+    createPortal:function () {
+        var door = this.game.add.sprite(this.game.width/2, this.game.height/2-60, 'heidong', null, this.toolsGroup);
+        door.anchor.set(0.5)
+        door.body.setSize(200, 30,0, 0);        
+        door.name = 'portal'
+        door.animations.add('heidong');
+        door.animations.play('heidong', 30, true);    
+        door.scale.set(0.1)
+        var tweenFuel = this.game.add.tween(door.scale)
+        tweenFuel.to({ x: 1,y:1 }, 1000, Phaser.Easing.Quadratic.BackOut); 
+        tweenFuel.start();
+        this.toolsGroup.setAll('body.gravity.y', this.gamespeed);                        
+        this.toolsGroup.setAll('body.moves', false);    
+    },    
+
+    // 燃气加速
     fuelUp:function () {
         var up = true
         this.useEffect = true
@@ -829,6 +954,37 @@ BasicGame.Game.prototype = {
             };
         }, this);
     },
+
+    // 传送门加速
+    PortalUp:function (portal) {
+        portal.visible = false
+        this.player.visible = false
+        var up = true
+        this.useEffect = true
+        this.bRunBg = true
+        this.masterBack(280,9000)
+        this.killGroup.removeAll();
+        this.hitGroup.removeAll();
+        this.game.time.events.repeat(Phaser.Timer.SECOND/8, 40, function () {
+            if (this.bg.offset < 64 && up == true) {
+                this.bg.offset += 3
+            } else{
+                up = false
+                this.bg.offset -= 3
+            };
+            if (this.bg.offset <= 4) {
+                this.useEffect = false
+                this.bg.offset = 4
+                portal.visible = true
+                this.player.visible = true
+                portal.y = 80
+                this.player.y = 100
+                var tweenplayer = this.game.add.tween(this.player)
+                tweenplayer.to({ y: this.game.height/2-200 }, 1000, Phaser.Easing.Quadratic.InOut); 
+                tweenplayer.start();
+            };
+        }, this);
+    },    
 
     masterGo:function (distance) {
         distance = distance || 20
