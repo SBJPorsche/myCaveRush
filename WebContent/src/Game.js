@@ -148,7 +148,7 @@ BasicGame.Game.prototype = {
             if (this.hitGroup.length+this.killGroup.length > 1) { 
             }else{
                 if (this.useEffect == true) {return ;};
-                var newY = this.game.height
+                var newY = this.game.height+200
                 for (var i = 0; i < 3; i++) {
                    newY = this.createEnemy(newY) 
                 };
@@ -275,8 +275,8 @@ BasicGame.Game.prototype = {
         // type = 11
         //石墙
         if (type == 1) {
-            nextEnemyY = y+200 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+200, 'zhalans', 'ground_grass.png', this.hitGroup);
+            nextEnemyY = y+300 // 80是enemy高度
+            var fence = this.game.add.sprite(this.game.width/2, y, 'zhalans', 'ground_grass.png', this.hitGroup);
             fence.anchor.set(0.5)
             fence.inputEnabled = true;
             fence.events.onInputDown.add(function  () {
@@ -295,8 +295,8 @@ BasicGame.Game.prototype = {
 
         //飞鸟
         if (type == 2) {
-            nextEnemyY = y+200 // 80是enemy高度
-            var bird = this.game.add.sprite(this.game.width-200, y+200, 'bird', null, this.killGroup);
+            nextEnemyY = y+300 // 80是enemy高度
+            var bird = this.game.add.sprite(this.game.width-200, y, 'bird', null, this.killGroup);
             this.game.add.tween(bird).to({ x: 200 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
             bird.anchor.set(0.5)
             bird.animations.add('fly');
@@ -314,11 +314,11 @@ BasicGame.Game.prototype = {
 
         //箭头
         if (type == 3) {
-            nextEnemyY = y+250 // 80是enemy高度
+            nextEnemyY = y+300 // 80是enemy高度
             var typeArrow = this.game.rnd.integerInRange(1, 2);
             var perX
 
-            var arrow = this.game.add.sprite(this.game.width/2, y+250, 'arrow', null, this.hitGroup);
+            var arrow = this.game.add.sprite(this.game.width/2, y, 'arrow', null, this.hitGroup);
             arrow.anchor.set(0.5)
             if (typeArrow == 1) {arrow.angle = 180};
             arrow.inputEnabled = true;
@@ -371,7 +371,7 @@ BasicGame.Game.prototype = {
             var keys = ['key','key1']
 
             var lockType = this.game.rnd.integerInRange(0, 1)
-            var lock = this.game.add.sprite(this.game.width/2, y+400, locks[lockType], null, this.hitGroup);
+            var lock = this.game.add.sprite(this.game.width/2, y, locks[lockType], null, this.hitGroup);
             lock.anchor.set(0.5)
 
             var keyTypeL = this.game.rnd.integerInRange(0, 1)
@@ -423,12 +423,12 @@ BasicGame.Game.prototype = {
 
         //猜卡牌
         if (type == 5) {
-            nextEnemyY = y+1800 // 80是enemy高度
+            nextEnemyY = y+800 // 80是enemy高度
             var poss = [-150,0,150]
             var cards = ['card_26','card_28','card_38']
             cards = Phaser.ArrayUtils.shuffle(cards)
 
-            var cardBase = this.game.add.sprite(this.game.width/2, y+200, cards[0], null, this.hitGroup);
+            var cardBase = this.game.add.sprite(this.game.width/2, y, cards[0], null, this.hitGroup);
             cardBase.anchor.set(0.5)
             // this.game.add.tween(cardBase).to({ alpha: 0 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
 
@@ -462,7 +462,7 @@ BasicGame.Game.prototype = {
 
         //数学板
         if (type == 6) {
-            nextEnemyY = y+300 // 80是enemy高度
+            nextEnemyY = y+400 // 80是enemy高度
             var textshow
             var right = false
             var initbord = function () {
@@ -480,7 +480,7 @@ BasicGame.Game.prototype = {
                 textshow.text = str
             }
 
-            var mathBord = this.game.add.sprite(this.game.width/2, y+300, 'fence', null, this.hitGroup);
+            var mathBord = this.game.add.sprite(this.game.width/2, y, 'fence', null, this.hitGroup);
             mathBord.anchor.set(0.5)
             mathBord.scale.set(4,2) 
 
@@ -529,7 +529,7 @@ BasicGame.Game.prototype = {
 
         //找不同
         if (type == 7) {
-            nextEnemyY = y+1800 // 80是enemy高度
+            nextEnemyY = y+800 // 80是enemy高度
             var pics = []
             for (var i = 0; i < 9; i++) {
                 if (i < 8) {
@@ -546,7 +546,7 @@ BasicGame.Game.prototype = {
                         ]
             poss = Phaser.ArrayUtils.shuffle(poss)
 
-            var diffBord = this.game.add.sprite(this.game.width/2, y+200, 'background', null, this.hitGroup);
+            var diffBord = this.game.add.sprite(this.game.width/2, y, 'background', null, this.hitGroup);
             diffBord.anchor.set(0.5)
 
             for (var i = 0; i < pics.length; i++) {
@@ -576,8 +576,8 @@ BasicGame.Game.prototype = {
 
         //主角旋转
         if (type == 8) {
-            nextEnemyY = y+150 // 80是enemy高度
-            var playerBord = this.game.add.sprite(this.game.width/2, y+150, 'players',GlobalPlayerFrame, this.hitGroup);
+            nextEnemyY = y+300 // 80是enemy高度
+            var playerBord = this.game.add.sprite(this.game.width/2, y, 'players',GlobalPlayerFrame, this.hitGroup);
             playerBord.anchor.set(0.5)
             playerBord.scale.set(1) 
 
@@ -599,8 +599,8 @@ BasicGame.Game.prototype = {
 
         //摇一摇
         if (type == 9) {
-            nextEnemyY = y+200 // 80是enemy高度
-            var shade = this.game.add.sprite(this.game.width/2, y+200, 'fence', null, this.hitGroup);
+            nextEnemyY = y+300 // 80是enemy高度
+            var shade = this.game.add.sprite(this.game.width/2, y, 'fence', null, this.hitGroup);
             shade.anchor.set(0.5)
             shade.scale.x = 4
             this.game.time.events.loop(Phaser.Timer.SECOND/60, function () {
@@ -624,9 +624,9 @@ BasicGame.Game.prototype = {
 
         //双向箭头
         if (type == 10) {
-            nextEnemyY = y+250 // 80是enemy高度
+            nextEnemyY = y+300 // 80是enemy高度
 
-            var arrowBord = this.game.add.sprite(this.game.width/2, y+250, 'touming', null, this.hitGroup);
+            var arrowBord = this.game.add.sprite(this.game.width/2, y, 'touming', null, this.hitGroup);
             arrowBord.anchor.set(0.5)
             arrowBord.killL = false           
             arrowBord.killR = false           
@@ -696,8 +696,8 @@ BasicGame.Game.prototype = {
 
         //闪电
         if (type == 11) {
-            nextEnemyY = y+600 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+600, 'fire', null, this.killGroup);
+            nextEnemyY = y+500 // 80是enemy高度
+            var fence = this.game.add.sprite(this.game.width/2, y, 'fire', null, this.killGroup);
             fence.anchor.set(0.5)
             fence.scale.set(2)
             fence.body.setSize(158, 30,0, 0);
@@ -730,9 +730,9 @@ BasicGame.Game.prototype = {
 
         //排序1-9 a-z
         if (type == 12) {
-            nextEnemyY = y+500 // 80是enemy高度
+            nextEnemyY = y+400 // 80是enemy高度
 
-            var arrowBord = this.game.add.sprite(this.game.width/2, y+500, 'touming', null, this.hitGroup);
+            var arrowBord = this.game.add.sprite(this.game.width/2, y, 'touming', null, this.hitGroup);
             arrowBord.anchor.set(0.5)
             var typesort = this.game.rnd.integerInRange(0, 1);
             var nums
@@ -796,8 +796,8 @@ BasicGame.Game.prototype = {
 
         //移动闪电
         if (type == 13) {
-            nextEnemyY = y+600 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y+600, 'lightning', null, this.killGroup);
+            nextEnemyY = y+400 // 80是enemy高度
+            var fence = this.game.add.sprite(this.game.width/2, y, 'lightning', null, this.killGroup);
             fence.anchor.set(0.5)
             fence.animations.add('lingining');
             fence.animations.play('lingining', 30, true);            
