@@ -272,7 +272,7 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        // type = 11
+        // type = 14
         //石墙
         if (type == 1) {
             nextEnemyY = y+300 // 80是enemy高度
@@ -874,7 +874,31 @@ BasicGame.Game.prototype = {
 
             this.killGroup.setAll('body.gravity.y', this.gamespeed);     
             this.killGroup.setAll('body.moves', false);                              
-        };   
+        };  
+
+        // 随形状移动
+        if (type == 14) {
+            var poly = new Phaser.Polygon([ new Phaser.Point(200, 100), new Phaser.Point(350, 100), new Phaser.Point(375, 200), new Phaser.Point(150, 200) ]);
+
+            var graphics = game.add.graphics(0, 0);
+            graphics.beginFill(0xFF33ff);
+            graphics.drawPolygon(poly.points);
+            graphics.endFill();
+
+            // bounds = new Phaser.Rectangle(100, 100, 500, 400);
+
+            // //  Create a graphic so you can see the bounds
+            // var graphics = game.add.graphics(bounds.x, bounds.y);
+            // graphics.beginFill(0x000077);
+            // graphics.drawRect(0, 0, bounds.width, bounds.height);
+
+            var sprite = game.add.sprite(300, 300, 'no');
+            sprite.inputEnabled = true;
+            sprite.anchor.set(0.5);
+
+            sprite.input.enableDrag();
+            sprite.input.boundsRect = poly;            
+        }; 
 
         return nextEnemyY;                
     },
@@ -957,7 +981,11 @@ BasicGame.Game.prototype = {
 
     // 传送门加速
     PortalUp:function (portal) {
-        portal.visible = false
+        // portal.visible = false
+        // this.game.add.tween(portal).to({y:100},100,Phaser.Easing.Quadratic.InOut)
+        var tweenPortal = this.game.add.tween(portal)
+        tweenPortal.to({ y:80 }, 9000, Phaser.Easing.Quadratic.InOut); 
+        tweenPortal.start();        
         this.player.visible = false
         var up = true
         this.useEffect = true
@@ -975,7 +1003,7 @@ BasicGame.Game.prototype = {
             if (this.bg.offset <= 4) {
                 this.useEffect = false
                 this.bg.offset = 4
-                portal.visible = true
+                // portal.visible = true
                 this.player.visible = true
                 portal.y = 80
                 this.player.y = 100
