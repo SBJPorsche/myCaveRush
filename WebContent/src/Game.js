@@ -272,7 +272,7 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        type = 11
+        // type = 13
         //石墙
         if (type == 1) {
             nextEnemyY = y+300 // 80是enemy高度
@@ -474,10 +474,10 @@ BasicGame.Game.prototype = {
             var textshow
             var right = false
             var initbord = function () {
-                var a = Math.ceil(Math.random()*500)
-                var b = Math.ceil(Math.random()*500)
+                var a = Math.ceil(Math.random()*100)
+                var b = Math.ceil(Math.random()*100)
                 var arr = ['+','-']
-                var subs = [-100,-10,0,10,100,0,0]
+                var subs = [-20,-10,0,10,20,0,0]
                 subs = Phaser.ArrayUtils.shuffle(subs)
                 var sub = subs[0]
                 var sum = a+b+sub
@@ -705,7 +705,7 @@ BasicGame.Game.prototype = {
         //闪电
         if (type == 11) {
             nextEnemyY = y+500 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y, 'fire', null, this.hitGroup);
+            var fence = this.game.add.sprite(this.game.width/2, y, 'fire', null, this.killGroup);
             fence.anchor.set(0.5)
             fence.scale.set(2)
             fence.body.setSize(158, 30,0, 0);
@@ -727,7 +727,7 @@ BasicGame.Game.prototype = {
             zha.events.onDragUpdate.add(function () {
                 if ((zha.y - perY) < 0) {zha.y = perY};
                 if ((zha.y-perY)>100) {
-                    this.hitGroup.remove(fence)
+                    this.killGroup.remove(fence)
                     fence.kill()
                 };
             }, this);   
@@ -736,8 +736,8 @@ BasicGame.Game.prototype = {
             fence.addChild(btn);
             btn.scale.set(0.6)
 
-            this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
-            this.hitGroup.setAll('body.moves', false);                              
+            this.killGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.killGroup.setAll('body.moves', false);                              
         };     
 
         //排序1-9 a-z
@@ -811,17 +811,21 @@ BasicGame.Game.prototype = {
             nextEnemyY = y+400 // 80是enemy高度
             var fence = this.game.add.sprite(this.game.width/2, y, 'lightning', null, this.killGroup);
             fence.anchor.set(0.5)
+            fence.scale.set(2)
             fence.animations.add('lingining');
             fence.animations.play('lingining', 30, true);            
 
             var type = this.game.rnd.integerInRange(1, 2);
             if (type == 1) {
-                var btn1 = this.game.make.sprite(200, 0, 'yes')
+                var btn1 = this.game.make.sprite(150, 0, 'lightingbase')
                 fence.addChild(btn1);
                 btn1.anchor.set(0.5)
-                btn1.scale.set(2)
+                btn1.scale.set(0.6)
+                btn1.angle = 180
                 var typepos = this.game.rnd.integerInRange(1, 2);
-                if (typepos == 1) {btn1.x = -200};
+                if (typepos == 1) {
+                    btn1.x = -150 ;
+                };
                 btn1.inputEnabled = true;
                 btn1.events.onInputUp.add(function () {
                     fence.visible = true
@@ -835,10 +839,11 @@ BasicGame.Game.prototype = {
                 });                          
             } else{
                 var btn1,btn2
-                btn1 = this.game.make.sprite(200, 0, 'yes')
+                btn1 = this.game.make.sprite(150, 0, 'lightingbase')
+                btn1.angle = 180
                 fence.addChild(btn1);
                 btn1.anchor.set(0.5)
-                btn1.scale.set(2)
+                btn1.scale.set(0.6)
                 btn1.onput = false
                 btn1.inputEnabled = true;
                 btn1.events.onInputUp.add(function () {
@@ -859,10 +864,10 @@ BasicGame.Game.prototype = {
                     };
                 });   
 
-                btn2 = this.game.make.sprite(-200, 0, 'yes')
+                btn2 = this.game.make.sprite(-150, 0, 'lightingbase')
                 fence.addChild(btn2);
                 btn2.anchor.set(0.5)
-                btn2.scale.set(2)
+                btn2.scale.set(0.6)
                 btn2.onput = false
                 btn2.inputEnabled = true;
                 btn2.events.onInputUp.add(function () {
@@ -1006,11 +1011,13 @@ BasicGame.Game.prototype = {
 
     // 传送门加速
     PortalUp:function (portal) {
-        // portal.visible = false
-        // this.game.add.tween(portal).to({y:100},100,Phaser.Easing.Quadratic.InOut)
         var tweenPortal = this.game.add.tween(portal)
-        tweenPortal.to({ y:80 }, 9000, Phaser.Easing.Quadratic.InOut); 
-        tweenPortal.start();        
+        tweenPortal.to({ y:80 }, 1500, Phaser.Easing.Quadratic.InOut); 
+        tweenPortal.start(); 
+        tweenPortal.onComplete.addOnce(function ( ) {
+            portal.visible = false
+            portal.y = this.game.height
+        },  this);       
         this.player.visible = false
         var up = true
         this.useEffect = true
@@ -1028,9 +1035,9 @@ BasicGame.Game.prototype = {
             if (this.bg.offset <= 4) {
                 this.useEffect = false
                 this.bg.offset = 4
-                // portal.visible = true
                 this.player.visible = true
                 portal.y = 80
+                portal.visible = true
                 this.player.y = 100
                 var tweenplayer = this.game.add.tween(this.player)
                 tweenplayer.to({ y: this.game.height/2-200 }, 1000, Phaser.Easing.Quadratic.InOut); 
