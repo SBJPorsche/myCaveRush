@@ -82,6 +82,9 @@ BasicGame.Preloader.prototype = {
     	this.load.atlas('zhalans', 'images/zhalan.png', 'images/zhalan.json');
     	this.load.atlas('players', 'images/playerJson.png', 'images/playerJson.json');
 		this.load.image('background', 'images/background.png');   	
+		this.load.image('start', 'images/start.png');   	
+		this.load.image('lightingbase', 'images/lightingbase.png');   	
+		this.load.image('firebase', 'images/firebase.png');   	
 	},
 
 	create: function () {

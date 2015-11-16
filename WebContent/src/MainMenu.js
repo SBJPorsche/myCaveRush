@@ -14,7 +14,7 @@ BasicGame.MainMenu.prototype = {
 
 		this.add.sprite(this.world.centerX,this.world.centerY, 'preloaderBackground').anchor.set(0.5,0.5);
 		this.chooseRole = this.add.button(this.game.width-100,100, 'startNormal',this.chooseRoleFunc, this, 2, 1, 0).anchor.set(0.5,0.5);
-		this.playButton = this.add.button(this.world.centerX,this.world.centerY, 'startNormal',this.startGame, this, 2, 1, 0).anchor.set(0.5,0.5);
+		this.playButton = this.add.button(this.world.centerX,this.world.centerY, 'start',this.startGame, this, 2, 1, 0).anchor.set(0.5,0.5);
 	},
 
 	update: function () {

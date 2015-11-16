@@ -121,7 +121,7 @@ BasicGame.Game.prototype = {
         this.longestText.anchor.set(0.5);  
 
         this.fuelCntText = this.game.add.text(100, 220, "fuel:0", this.style);
-        this.fuelCntText.anchor.set(0.5);  
+        this.fuelCntText.anchor.set(0.5);   
 
         this.rocket = this.game.add.button(100,220,'rocket',function () {
             if (this.useEffect == false) {
@@ -272,7 +272,7 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        // type = 14
+        type = 11
         //石墙
         if (type == 1) {
             nextEnemyY = y+300 // 80是enemy高度
@@ -373,50 +373,58 @@ BasicGame.Game.prototype = {
             var lockType = this.game.rnd.integerInRange(0, 1)
             var lock = this.game.add.sprite(this.game.width/2, y, locks[lockType], null, this.hitGroup);
             lock.anchor.set(0.5)
+            lock.name = lockType
 
             var keyTypeL = this.game.rnd.integerInRange(0, 1)
             var keyL = this.game.make.sprite(-300, 100, keys[keyTypeL]);
             lock.addChild(keyL);
+            keyL.name = keyTypeL
             keyL.anchor.set(0.5)
             keyL.inputEnabled = true;           
             keyL.input.enableDrag();
-            var interacteFunc = function  () {
+            var interacteFunc = function  (keyL) {
                 if (Phaser.Rectangle.intersects(lock.getBounds(), keyL.getBounds())) {
-                    if (lockType == keyTypeL) {
+                    if (lock.name == keyL.name) {
                         if (this.hitGroup.getFirstAlive() == lock) {
                             this.bRunBg = true;
                         };
                         this.hitGroup.remove(lock);
                         lock.kill();
                     } else{
-                        // this.masterGo(10)
-                        keyL.kill();
+                        var tweenMaster = this.game.add.tween(keyL)
+                        tweenMaster.to({ y: 100,x:-300 }, 1000, Phaser.Easing.Quadratic.InOut); 
+                        tweenMaster.start();
                     };
                 };
             }
             keyL.events.onDragUpdate.add(interacteFunc,this);  
+            keyL.events.onDragStop.add(interacteFunc,this);  
 
-            if (keyTypeL == 0) {keyTypeR = 1} else{keyTypeR = 0};
+            if (keyTypeL === 0) {keyTypeR = 1};
+            if (keyTypeL === 1) {keyTypeR = 0};
             var keyR = this.game.make.sprite(300, 100, keys[keyTypeR]);
             lock.addChild(keyR);
+            keyR.name = keyTypeR
             keyR.anchor.set(0.5)
             keyR.inputEnabled = true;           
             keyR.input.enableDrag();
-            var interacteFuncR = function  () {
+            var interacteFuncR = function  (keyR) {
                 if (Phaser.Rectangle.intersects(lock.getBounds(), keyR.getBounds())) {
-                    if (lockType == keyTypeR) {
+                    if (lock.name == keyR.name) {
                         if (this.hitGroup.getFirstAlive() == lock) {
                             this.bRunBg = true;
                         };
                         this.hitGroup.remove(lock);
                         lock.kill();
                     } else{
-                        // this.masterGo(10)
-                        keyR.kill();
+                        var tweenMaster = this.game.add.tween(keyR)
+                        tweenMaster.to({ y: 100,x:300 }, 1000, Phaser.Easing.Quadratic.InOut); 
+                        tweenMaster.start();                      
                     };
                 };
             }   
             keyR.events.onDragUpdate.add(interacteFuncR, this);             
+            keyR.events.onDragStop.add(interacteFuncR, this);             
             this.hitGroup.setAll('body.gravity.y', this.gamespeed); 
             this.hitGroup.setAll('body.moves', false);                              
         }; 
@@ -697,7 +705,7 @@ BasicGame.Game.prototype = {
         //闪电
         if (type == 11) {
             nextEnemyY = y+500 // 80是enemy高度
-            var fence = this.game.add.sprite(this.game.width/2, y, 'fire', null, this.killGroup);
+            var fence = this.game.add.sprite(this.game.width/2, y, 'fire', null, this.hitGroup);
             fence.anchor.set(0.5)
             fence.scale.set(2)
             fence.body.setSize(158, 30,0, 0);
@@ -719,13 +727,17 @@ BasicGame.Game.prototype = {
             zha.events.onDragUpdate.add(function () {
                 if ((zha.y - perY) < 0) {zha.y = perY};
                 if ((zha.y-perY)>100) {
-                    this.killGroup.remove(fence)
+                    this.hitGroup.remove(fence)
                     fence.kill()
                 };
-            }, this);              
+            }, this);   
 
-            this.killGroup.setAll('body.gravity.y', this.gamespeed);     
-            this.killGroup.setAll('body.moves', false);                              
+            var btn = this.game.make.sprite(86, -30, 'firebase')           
+            fence.addChild(btn);
+            btn.scale.set(0.6)
+
+            this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.hitGroup.setAll('body.moves', false);                              
         };     
 
         //排序1-9 a-z
@@ -878,12 +890,12 @@ BasicGame.Game.prototype = {
 
         // 随形状移动
         if (type == 14) {
-            var poly = new Phaser.Polygon([ new Phaser.Point(200, 100), new Phaser.Point(350, 100), new Phaser.Point(375, 200), new Phaser.Point(150, 200) ]);
+            // var poly = new Phaser.Polygon([ new Phaser.Point(200, 100), new Phaser.Point(350, 100), new Phaser.Point(375, 200), new Phaser.Point(150, 200) ]);
 
-            var graphics = game.add.graphics(0, 0);
-            graphics.beginFill(0xFF33ff);
-            graphics.drawPolygon(poly.points);
-            graphics.endFill();
+            // var graphics = game.add.graphics(0, 0);
+            // graphics.beginFill(0xFF33ff);
+            // graphics.drawPolygon(poly.points);
+            // graphics.endFill();
 
             // bounds = new Phaser.Rectangle(100, 100, 500, 400);
 
@@ -892,12 +904,25 @@ BasicGame.Game.prototype = {
             // graphics.beginFill(0x000077);
             // graphics.drawRect(0, 0, bounds.width, bounds.height);
 
-            var sprite = game.add.sprite(300, 300, 'no');
-            sprite.inputEnabled = true;
-            sprite.anchor.set(0.5);
 
-            sprite.input.enableDrag();
-            sprite.input.boundsRect = poly;            
+            // sprite.input.boundsRect = poly;    
+            // nextEnemyY = y+300 // 80是enemy高度
+            // var fence = this.game.add.sprite(this.game.width/2, y, 'shap1',null,this.hitGroup);
+            // fence.anchor.set(0.5)
+
+
+            // var xian = this.game.add.sprite(this.game.width/2, 200, 'shap1');
+            // var sprite = this.game.add.sprite(10, 10, 'no');
+            // sprite.inputEnabled = true;
+            // xian.addChild(sprite);
+            // sprite.anchor.set(0.5);
+            // sprite.input.enableDrag();
+            // this.game.physics.startSystem(Phaser.Physics.P2JS);
+            // this.game.physics.p2.enable(xian,true);
+            // xian.body.clearShapes();
+            // xian.body.loadPolygon('physicsData', 'shap1'); 
+            // this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
+            // this.hitGroup.setAll('body.moves', false);                     
         }; 
 
         return nextEnemyY;                
