@@ -7,23 +7,23 @@ BasicGame.Player = function (game, x, y) {
     this.physics = game.physics.arcade;
     this.physics.enable(this);
 
-    var rocket = this.game.make.sprite(0,0,'players','rocket.png')
-    rocket.anchor.set(0.5)
-    this.addChild(rocket);
+    this.rocket = this.game.make.sprite(0,0,'players','rocket.png')
+    this.rocket.anchor.set(0.5)
+    this.addChild(this.rocket);
 
     var smoke = this.game.make.sprite(-80, -120, 'smoke');
     smoke.anchor.set(0.5)
     smoke.scale.set(2)
     smoke.animations.add('smoke');
     smoke.animations.play('smoke', 30, true);  
-    this.addChild(smoke);
+    this.rocket.addChild(smoke);
 
     var smoke1 = this.game.make.sprite(60, -110, 'smoke');
     smoke1.anchor.set(0.5)
     smoke1.scale.set(2)
     smoke1.animations.add('smoke1');
     smoke1.animations.play('smoke1', 30, true);  
-    this.addChild(smoke1);    
+    this.rocket.addChild(smoke1);    
 
     var player = this.game.make.sprite(0,0,'players',GlobalPlayerFrame)
     player.anchor.set(0.5)

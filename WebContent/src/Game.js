@@ -216,10 +216,17 @@ BasicGame.Game.prototype = {
         // 手机感应
         if (gammadirection>20 || gammadirection<-20) {
             this.player.angle = gammadirection 
+            if (this.player.angle > 0) {
+                this.player.rocket.angle = -gammadirection
+            } else{
+                this.player.rocket.angle = 360-gammadirection
+            };
         }else{
+            this.player.rocket.angle = 0
             this.player.angle = 0
         };
         if (betadirection>60) {
+            this.player.rocket.angle = -180
             this.player.angle = 180
         };
         playerRotation = Math.ceil((this.player.angle+360)%360)
