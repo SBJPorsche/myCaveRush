@@ -22,7 +22,7 @@ BasicGame.Game = function (game) {
     this.bRunBg = true
     this.offsetY = 0
     this.gamespeed = -80
-    this.longest = 0
+    this.longest = localData.get('longest') || 0
     this.fuelCnt = 0 // 燃料
     this.useEffect = false // 正在使用大招加速
 
@@ -39,6 +39,61 @@ function deviceOrientationListener(event) {
   gammadirection = Math.round(event.gamma);
 }
   
+localData = {
+    hname:location.hostname?location.hostname:'localStatus',
+    isLocalStorage:window.localStorage?true:false,
+    dataDom:null,
+    initDom:function(){ //初始化userData
+        if(!this.dataDom){
+            try{
+              this.dataDom = document.createElement('input');//这里使用hidden的input元素
+               this.dataDom.type = 'hidden';
+              this.dataDom.style.display = "none";
+              this.dataDom.addBehavior('#default#userData');//这是userData的语法
+              document.body.appendChild(this.dataDom);
+               var exDate = new Date();
+              exDate = exDate.getDate()+30;
+               this.dataDom.expires = exDate.toUTCString();//设定过期时间
+            }catch(ex){
+               return false;
+            }
+        }
+        return true;
+    },
+    set:function(key,value){
+         if(this.isLocalStorage){
+             window.localStorage.setItem(key,value);
+        }else{
+            if(this.initDom()){
+                this.dataDom.load(this.hname);
+                this.dataDom.setAttribute(key,value);
+                this.dataDom.save(this.hname)
+            }
+         }
+    },
+    get:function(key){
+         if(this.isLocalStorage){
+             return window.localStorage.getItem(key);
+         }else{
+             if(this.initDom()){
+                 this.dataDom.load(this.hname);
+                 return this.dataDom.getAttribute(key);
+             }
+         }
+    },
+    remove:function(key){
+         if(this.isLocalStorage){
+             localStorage.removeItem(key);
+         }else{
+             if(this.initDom()){
+                 this.dataDom.load(this.hname);
+                 this.dataDom.removeAttribute(key);
+                 this.dataDom.save(this.hname)
+             }
+         }
+    }
+}
+
 if (window.DeviceOrientationEvent) {
     window.addEventListener("deviceorientation", deviceOrientationListener);
 } else {
@@ -256,7 +311,10 @@ BasicGame.Game.prototype = {
         this.bRunBg = true
         this.offsetY = 0
         this.fuelCnt = 0 // 燃料
-        if (this.bg.distance > this.longest) {this.longest = this.bg.distance};
+        if (this.bg.distance > this.longest) {
+            this.longest = this.bg.distance
+            localData.set('longest',this.longest)
+        };
         this.state.start('MainMenu');
     },
 
@@ -272,7 +330,7 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        // type = 13
+        // type = 11
         //石墙
         if (type == 1) {
             nextEnemyY = y+300 // 80是enemy高度
@@ -892,43 +950,6 @@ BasicGame.Game.prototype = {
             this.killGroup.setAll('body.gravity.y', this.gamespeed);     
             this.killGroup.setAll('body.moves', false);                              
         };  
-
-        // 随形状移动
-        if (type == 14) {
-            // var poly = new Phaser.Polygon([ new Phaser.Point(200, 100), new Phaser.Point(350, 100), new Phaser.Point(375, 200), new Phaser.Point(150, 200) ]);
-
-            // var graphics = game.add.graphics(0, 0);
-            // graphics.beginFill(0xFF33ff);
-            // graphics.drawPolygon(poly.points);
-            // graphics.endFill();
-
-            // bounds = new Phaser.Rectangle(100, 100, 500, 400);
-
-            // //  Create a graphic so you can see the bounds
-            // var graphics = game.add.graphics(bounds.x, bounds.y);
-            // graphics.beginFill(0x000077);
-            // graphics.drawRect(0, 0, bounds.width, bounds.height);
-
-
-            // sprite.input.boundsRect = poly;    
-            // nextEnemyY = y+300 // 80是enemy高度
-            // var fence = this.game.add.sprite(this.game.width/2, y, 'shap1',null,this.hitGroup);
-            // fence.anchor.set(0.5)
-
-
-            // var xian = this.game.add.sprite(this.game.width/2, 200, 'shap1');
-            // var sprite = this.game.add.sprite(10, 10, 'no');
-            // sprite.inputEnabled = true;
-            // xian.addChild(sprite);
-            // sprite.anchor.set(0.5);
-            // sprite.input.enableDrag();
-            // this.game.physics.startSystem(Phaser.Physics.P2JS);
-            // this.game.physics.p2.enable(xian,true);
-            // xian.body.clearShapes();
-            // xian.body.loadPolygon('physicsData', 'shap1'); 
-            // this.hitGroup.setAll('body.gravity.y', this.gamespeed);     
-            // this.hitGroup.setAll('body.moves', false);                     
-        }; 
 
         return nextEnemyY;                
     },
