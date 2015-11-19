@@ -1,8 +1,5 @@
 
 BasicGame.Game = function (game) {
-
-    //  When a State is added to Phaser it automatically has the following properties set on it, even if they already exist:
-
     this.game;      //  a reference to the currently running game
     this.add;       //  used to add sprites, text, groups, etc
     this.camera;    //  a reference to the game camera
@@ -25,10 +22,8 @@ BasicGame.Game = function (game) {
     this.longest = localData.get('longest') || 0
     this.fuelCnt = 0 // 燃料
     this.useEffect = false // 正在使用大招加速
-
-    //  You can use any of these from any function within this State.
-    //  But do consider them as being 'reserved words', i.e. don't create a property for your own game called "world" or you'll over-write the world reference.
 };
+
 var maxFuelCnt = 3
 var betadirection=0,gammadirection=0,alphadirection=0;
 var playerRotation = 0
@@ -103,7 +98,7 @@ if (window.DeviceOrientationEvent) {
 
 var bPlayerShade = false
 // 首先，定义一个摇动的阀值
-var SHAKE_THRESHOLD = 3000;
+var SHAKE_THRESHOLD = 2000;
 // 定义一个变量保存上次更新的时间
 var last_update = 0;
 // 紧接着定义x、y、z记录三个轴的数据以及上一次出发的时间
@@ -243,9 +238,9 @@ BasicGame.Game.prototype = {
             this.quitGame();
         }, null, this);           
         //与killitem碰撞
-        this.game.physics.arcade.collide(this.player,this.killGroup, function () {
+        this.game.physics.arcade.overlap(this.player,this.killGroup, function () {
             this.quitGame();
-        }, null, this); 
+        }, null, this);         
         //与hititem碰撞  
         this.game.physics.arcade.collide(this.player,this.hitGroup, function () {
             this.bRunBg = false
@@ -331,13 +326,13 @@ BasicGame.Game.prototype = {
 
     createEnemy: function (y) {
         var nextEnemyY = 0
-        var type = this.game.rnd.integerInRange(1, 13);
+        var type = this.game.rnd.integerInRange(1, 14);
         if (surportRotation == false) {
             if (type == 8 || type == 9) {
                 type = 12
             };
         };
-        // type = 11
+        // type = 14
         //石墙
         if (type == 1) {
             nextEnemyY = y+300 // 80是enemy高度
@@ -873,9 +868,10 @@ BasicGame.Game.prototype = {
 
         //移动闪电
         if (type == 13) {
-            nextEnemyY = y+400 // 80是enemy高度
+            nextEnemyY = y+800 // 80是enemy高度
             var fence = this.game.add.sprite(this.game.width/2, y, 'lightning', null, this.killGroup);
             fence.anchor.set(0.5)
+            fence.body.setSize(220,20,0,0);
             fence.scale.set(2)
             fence.animations.add('lingining');
             fence.animations.play('lingining', 30, true);            
@@ -955,6 +951,42 @@ BasicGame.Game.prototype = {
             };
 
             this.killGroup.setAll('body.gravity.y', this.gamespeed);     
+            this.killGroup.setAll('body.moves', false);                              
+        };  
+
+        //夹子
+        if (type == 14) {
+            nextEnemyY = y+800 // 80是enemy高度
+            var runL,runR,brun = true
+            var jbL = this.game.add.sprite(0, y, 'jiaban', null, this.killGroup);
+            jbL.anchor.set(0.5)
+            jbL.body.setSize(59,259,0,0);
+            runL = this.game.add.tween(jbL).to({ x: this.game.width/2 }, 3000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+
+            var jbR = this.game.add.sprite(this.game.width, y, 'jiaban', null, this.killGroup);
+            jbR.anchor.set(0.5)
+            jbR.body.setSize(59,259,0,0);
+            runR = this.game.add.tween(jbR).to({ x: this.game.width/2 }, 3000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+
+            var stop = this.game.add.sprite(this.game.width-100, y-200, 'yes', null, this.killGroup);
+            stop.anchor.set(0.5)
+            stop.scale.set(3)
+            stop.lw = runL
+            stop.rw = runR
+            stop.inputEnabled = true;
+            stop.events.onInputDown.add(function(stop) {
+                if (brun == true) {
+                    stop.lw.pause();
+                    stop.rw.pause();
+                    brun = false
+                } else{
+                    stop.lw.resume();
+                    stop.rw.resume();
+                    brun = true
+                };
+            }, this);  
+
+            this.killGroup.setAll('body.gravity.y', this.gamespeed);    
             this.killGroup.setAll('body.moves', false);                              
         };  
 
@@ -1040,7 +1072,7 @@ BasicGame.Game.prototype = {
     // 传送门加速
     PortalUp:function (portal) {
         var tweenPortal = this.game.add.tween(portal)
-        tweenPortal.to({ y:80 }, 1500, Phaser.Easing.Quadratic.InOut); 
+        tweenPortal.to({ y:5 }, 1500, Phaser.Easing.Quadratic.InOut); 
         tweenPortal.start(); 
         tweenPortal.onComplete.addOnce(function ( ) {
             portal.visible = false
