@@ -13,8 +13,8 @@ BasicGame.Preloader.prototype = {
 	preload: function () {
 		this.background = this.add.sprite(this.world.centerX, this.world.centerY, 'preloaderBackground');
 		this.background.anchor.set(0.5,0.5)
-		this.preloadBar = this.add.sprite(this.world.centerX-80, this.world.centerY, 'preloaderBar');
-		this.preloadBar.anchor.set(0,0.5)
+		this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloaderBar');
+		this.preloadBar.anchor.set(0.5)
 		this.load.setPreloadSprite(this.preloadBar);
 
 		this.load.audio('titleMusic', 'sounds/bg1FightLoop.mp3');
@@ -87,6 +87,7 @@ BasicGame.Preloader.prototype = {
 		this.load.image('jiaban', 'images/jiaban.png');   	
 		this.load.image('lightingbase', 'images/lightingbase.png');   	
 		this.load.image('firebase', 'images/firebase.png');   	
+		this.load.image('head', 'images/head.png');   	
 	},
 
 	create: function () {

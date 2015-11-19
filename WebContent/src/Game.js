@@ -332,7 +332,7 @@ BasicGame.Game.prototype = {
                 type = 12
             };
         };
-        // type = 14
+        // type = 13
         //石墙
         if (type == 1) {
             nextEnemyY = y+300 // 80是enemy高度
@@ -792,9 +792,8 @@ BasicGame.Game.prototype = {
                 };
             }, this);   
 
-            var btn = this.game.make.sprite(86, -30, 'firebase')           
+            var btn = this.game.make.sprite(96, -25, 'firebase')           
             fence.addChild(btn);
-            btn.scale.set(0.6)
 
             this.killGroup.setAll('body.gravity.y', this.gamespeed);     
             this.killGroup.setAll('body.moves', false);                              
@@ -904,7 +903,6 @@ BasicGame.Game.prototype = {
                 btn1.angle = 180
                 fence.addChild(btn1);
                 btn1.anchor.set(0.5)
-                btn1.scale.set(0.6)
                 btn1.onput = false
                 btn1.inputEnabled = true;
                 btn1.events.onInputUp.add(function () {
@@ -928,7 +926,6 @@ BasicGame.Game.prototype = {
                 btn2 = this.game.make.sprite(-150, 0, 'lightingbase')
                 fence.addChild(btn2);
                 btn2.anchor.set(0.5)
-                btn2.scale.set(0.6)
                 btn2.onput = false
                 btn2.inputEnabled = true;
                 btn2.events.onInputUp.add(function () {

@@ -13,7 +13,10 @@ BasicGame.MainMenu.prototype = {
 		this.music.play();
 
 		this.add.sprite(this.world.centerX,this.world.centerY, 'preloaderBackground').anchor.set(0.5,0.5);
-		this.chooseRole = this.add.button(this.game.width-100,100, 'startNormal',this.chooseRoleFunc, this, 2, 1, 0).anchor.set(0.5,0.5);
+		this.chooseRole = this.add.button(this.game.width-100,100, 'head',this.chooseRoleFunc, this, 2, 1, 0).anchor.set(0.5,0.5);
+		var role = this.game.add.sprite(this.game.width-100,80,'players',GlobalPlayerFrame)
+		role.anchor.set(0.5)
+		role.scale.set(0.8)
 		this.playButton = this.add.button(this.world.centerX,this.world.centerY, 'start',this.startGame, this, 2, 1, 0).anchor.set(0.5,0.5);
 	},
 
