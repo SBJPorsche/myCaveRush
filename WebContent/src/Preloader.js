@@ -88,6 +88,9 @@ BasicGame.Preloader.prototype = {
 		this.load.image('lightingbase', 'images/lightingbase.png');   	
 		this.load.image('firebase', 'images/firebase.png');   	
 		this.load.image('head', 'images/head.png');   	
+		this.load.image('gan', 'images/gan.png');   	
+		this.load.image('jinbi', 'images/jinbi.png');   	
+		this.load.image('di', 'images/di.png');   	
 	},
 
 	create: function () {

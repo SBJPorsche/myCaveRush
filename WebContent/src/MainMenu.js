@@ -11,6 +11,7 @@ BasicGame.MainMenu.prototype = {
 	create: function () {
 		this.music = this.add.audio('titleMusic');
 		this.music.play();
+	    GlobalPlayerFrame = localData.get('playerId') || 'player1.png'
 
 		this.add.sprite(this.world.centerX,this.world.centerY, 'preloaderBackground').anchor.set(0.5,0.5);
 		this.chooseRole = this.add.button(this.game.width-100,100, 'head',this.chooseRoleFunc, this, 2, 1, 0).anchor.set(0.5,0.5);

@@ -2,7 +2,7 @@
 
 "alienBeige_front.png":
 {
-	"frame": {"x":709,"y":2,"w":106,"h":150},
+	"frame": {"x":110,"y":762,"w":106,"h":150},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":106,"w":106,"h":150},
@@ -10,7 +10,7 @@
 },
 "alienBlue_front.png":
 {
-	"frame": {"x":601,"y":2,"w":106,"h":150},
+	"frame": {"x":2,"y":628,"w":106,"h":150},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":106,"w":106,"h":150},
@@ -18,7 +18,7 @@
 },
 "alienGreen_front.png":
 {
-	"frame": {"x":493,"y":2,"w":106,"h":150},
+	"frame": {"x":140,"y":407,"w":106,"h":150},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":106,"w":106,"h":150},
@@ -26,7 +26,7 @@
 },
 "alienPink_front.png":
 {
-	"frame": {"x":385,"y":2,"w":106,"h":150},
+	"frame": {"x":140,"y":255,"w":106,"h":150},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":106,"w":106,"h":150},
@@ -34,7 +34,7 @@
 },
 "alienYellow_front.png":
 {
-	"frame": {"x":817,"y":2,"w":106,"h":134},
+	"frame": {"x":2,"y":780,"w":106,"h":134},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":10,"y":122,"w":106,"h":134},
@@ -42,7 +42,7 @@
 },
 "bunny1_stand.png":
 {
-	"frame": {"x":125,"y":2,"w":120,"h":201},
+	"frame": {"x":125,"y":559,"w":120,"h":201},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":120,"h":201},
@@ -50,7 +50,7 @@
 },
 "bunny2_stand.png":
 {
-	"frame": {"x":2,"y":2,"w":121,"h":201},
+	"frame": {"x":2,"y":425,"w":121,"h":201},
 	"rotated": false,
 	"trimmed": false,
 	"spriteSourceSize": {"x":0,"y":0,"w":121,"h":201},
@@ -58,15 +58,23 @@
 },
 "player1.png":
 {
-	"frame": {"x":247,"y":2,"w":136,"h":168},
+	"frame": {"x":2,"y":255,"w":136,"h":168},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":30,"y":3,"w":136,"h":168},
 	"sourceSize": {"w":210,"h":174}
 },
+"player2.png":
+{
+	"frame": {"x":2,"y":90,"w":152,"h":163},
+	"rotated": false,
+	"trimmed": false,
+	"spriteSourceSize": {"x":0,"y":0,"w":152,"h":163},
+	"sourceSize": {"w":152,"h":163}
+},
 "rocket.png":
 {
-	"frame": {"x":385,"y":154,"w":174,"h":86},
+	"frame": {"x":2,"y":2,"w":174,"h":86},
 	"rotated": false,
 	"trimmed": true,
 	"spriteSourceSize": {"x":14,"y":58,"w":174,"h":86},
@@ -77,8 +85,8 @@
 	"version": "1.0",
 	"image": "playerJson.png",
 	"format": "RGBA8888",
-	"size": {"w":925,"h":242},
+	"size": {"w":248,"h":930},
 	"scale": "1",
-	"smartupdate": "$TexturePacker:SmartUpdate:232d44cc5739301f779ad7b2123c5ab3:b08ed1a80448f976b6aea6d6a7ec890f:53ed25038b0ccb2e13d214a137aee75a$"
+	"smartupdate": "$TexturePacker:SmartUpdate:9ca464c713562984863a2e2352757e50:d4281a5d88606f7463ca009fd547416a:53ed25038b0ccb2e13d214a137aee75a$"
 }
 }
