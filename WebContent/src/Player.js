@@ -11,14 +11,14 @@ BasicGame.Player = function (game, x, y) {
     this.rocket.anchor.set(0.5)
     this.addChild(this.rocket);
 
-    var smoke = this.game.make.sprite(-80, -120, 'smoke');
+    var smoke = this.game.make.sprite(-70, -130, 'smoke');
     smoke.anchor.set(0.5)
     smoke.scale.set(2)
     smoke.animations.add('smoke');
     smoke.animations.play('smoke', 30, true);  
     this.rocket.addChild(smoke);
 
-    var smoke1 = this.game.make.sprite(60, -110, 'smoke');
+    var smoke1 = this.game.make.sprite(60, -120, 'smoke');
     smoke1.anchor.set(0.5)
     smoke1.scale.set(2)
     smoke1.animations.add('smoke1');

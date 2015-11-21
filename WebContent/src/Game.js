@@ -17,7 +17,8 @@ BasicGame.Game = function (game) {
     this.rnd;       //  the repeatable random number generator
 };
 
-var maxFuelCnt = 3
+var maxFuelCnt = 4
+var maxPortalCnt = 4
 var betadirection=0,gammadirection=0,alphadirection=0;
 var playerRotation = 0
 var surportRotation = true
@@ -83,6 +84,7 @@ BasicGame.Game.prototype = {
         this.longest = localData.get('longest') || 0
         this.mycoin = localData.get('mycoin') || 0
         this.fuelCnt = 0 // 燃料
+        this.portalCnt = 0 // 燃料
         this.useEffect = false // 正在使用大招加速
 
         this.bg = new BasicGame.BackGround(this.game)
@@ -122,8 +124,6 @@ BasicGame.Game.prototype = {
         this.fuelCntText = this.game.add.text(100, 220, "fuel:0", this.style);
         this.fuelCntText.anchor.set(0.5); 
 
-        this.mycoinText = this.game.add.text(100, 280, 'myCoin:0', this.style);
-        this.mycoinText.anchor.set(0.5);         
         this.rocket = this.game.add.button(100,220,'rocket',function () {
             if (this.useEffect == false) {
                 this.fuelCnt = 0
@@ -133,15 +133,33 @@ BasicGame.Game.prototype = {
         }, this)   
         this.rocket.anchor.set(1.2)       
         // this.game.add.tween(this.rocket.scale).to({ x: 1.2,y:1.4 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
+        this.portalCntText = this.game.add.text(100, 160, "portal:0", this.style);
+        this.portalCntText.anchor.set(0.5); 
+
+        this.portalBtn = this.game.add.button(100,160,'lightingbase',function () {
+            if (this.useEffect == false) {
+                this.portalCnt = 0
+                // 此处实现加速效果传送门
+                this.createPortal()
+            };
+        }, this)   
+        this.portalBtn.anchor.set(1.2)  
+
+        this.mycoinText = this.game.add.text(100, 280, 'myCoin:0', this.style);
+        this.mycoinText.anchor.set(0.5);         
 
         this.masterDistance = this.game.add.text(100, 100,'0', this.style);
         this.masterDistance.anchor.set(0.5);  
 
         this.game.time.events.loop(Phaser.Timer.SECOND*4, function () {
-            if (this.killGroup.length+this.hitGroup.length <= 0) {                
-                if (this.fuelCnt < maxFuelCnt && this.useEffect == false) {
+            if (this.killGroup.length+this.hitGroup.length <= 0) {  
+                var type = this.game.rnd.integerInRange(1, 2);         
+                if (type == 1 && this.fuelCnt < maxFuelCnt && this.useEffect == false) {
                     this.createfuel() 
                 };
+                if (type == 2 && this.portalCnt < maxPortalCnt && this.useEffect == false) {
+                    this.createPortalRes()
+                };                
             };
         }, this);  
 
@@ -187,6 +205,7 @@ BasicGame.Game.prototype = {
         this.scoreText.text = this.bg.distance
         this.longestText.text = "best score:"+this.longest 
         this.fuelCntText.text = "fuel:"+this.fuelCnt
+        this.portalCntText.text = "portal:"+this.portalCnt
         this.mycoinText.text = "myCoin:"+this.mycoin
         var twoheight = this.master.height/2+this.player.height/2
         this.masterDistance.text = Math.max(Math.ceil(this.game.physics.arcade.distanceBetween(this.master,this.player)-twoheight),0)
@@ -204,9 +223,11 @@ BasicGame.Game.prototype = {
             this.bRunBg = false
         }, null, this); 
         //与tools碰撞  
-        this.game.physics.arcade.collide(this.player,this.toolsGroup, function () {
-            if (this.toolsGroup.getFirstAlive().name == 'portal' && this.useEffect == false) {
-                this.PortalUp(this.toolsGroup.getFirstAlive())
+        this.game.physics.arcade.collide(this.player,this.toolsGroup, function (player,tools) {
+            // if (this.toolsGroup.getFirstAlive().name == 'portal' && this.useEffect == false) {
+            if (tools.name == 'portal' && this.useEffect == false) {
+                // this.PortalUp(this.toolsGroup.getFirstAlive())
+                this.PortalUp(tools)
             };
         }, null, this);              
 
@@ -271,18 +292,41 @@ BasicGame.Game.prototype = {
         } else{
             this.rocket.visible = false 
             this.fuelCntText.visible = true
-        };       
+        };    
+
+        if (this.portalCnt == maxPortalCnt) {
+            this.portalBtn.visible = true 
+            this.portalCntText.visible = false
+        } else{
+            this.portalBtn.visible = false 
+            this.portalCntText.visible = true
+        };              
     },
 
     quitGame: function (pointer) {
-        this.bRunBg = true
-        this.offsetY = 0
-        this.fuelCnt = 0 // 燃料
-        if (this.bg.distance > this.longest) {
-            this.longest = this.bg.distance
-            localData.set('longest',this.longest)
-        };
-        this.state.start('MainMenu');
+        //死亡特效
+        this.killGroup.removeAll();
+        this.hitGroup.removeAll();
+        this.toolsGroup.removeAll();
+        this.allResGroup.removeAll();
+        var dead = this.game.add.sprite(this.player.x, this.player.y, 'dead');
+        dead.anchor.set(0.5)
+        dead.scale.set(3)
+        this.player.kill();
+        var ani = dead.animations.add('bao');
+        dead.animations.play('bao', 10, false);
+        ani.onComplete.add(function () {
+            dead.kill();
+            this.bRunBg = true
+            this.offsetY = 0
+            this.fuelCnt = 0 // 燃料
+            this.portalCnt = 0 // 燃料
+            if (this.bg.distance > this.longest) {
+                this.longest = this.bg.distance
+                localData.set('longest',this.longest)
+            };
+            this.state.start('MainMenu');
+        }, this);
     },
 
     render: function () {
@@ -483,7 +527,7 @@ BasicGame.Game.prototype = {
             var card3 = this.game.add.sprite(poss[2], 200, cards[2]);
             cardBase.addChild(card3);
             card3.anchor.set(0.5)
-            this.game.time.events.loop(Phaser.Timer.SECOND/1.5, function () {
+            this.game.time.events.loop(Phaser.Timer.SECOND/1.8, function () {
                 // this.masterGo(10)
                 poss = Phaser.ArrayUtils.shuffle(poss)
                 card1.x = poss[0]
@@ -993,22 +1037,9 @@ BasicGame.Game.prototype = {
         return nextEnemyY;                
     },
 
-    //燃料
+    //燃料 
     createfuel:function () {
-        var type = this.game.rnd.integerInRange(1, 15);
-        // 传送门
-        if (type > 10) {
-            var rl = this.game.add.sprite(this.game.width-50,this.game.height-100,'no', null, this.toolsGroup)
-            rl.inputEnabled = true;
-            rl.events.onInputDown.add(function  () {
-                this.toolsGroup.remove(rl)
-                rl.kill();
-                this.createPortal()
-            }, this);    
-            this.toolsGroup.setAll('body.gravity.y', this.gamespeed);                        
-            this.toolsGroup.setAll('body.moves', false);                         
-            return ;
-        };
+        var type = this.game.rnd.integerInRange(1, 10);
         var rl
         if (type <= 5) {
             rl = this.game.add.sprite(50,this.game.height-100,'ranliao', null, this.toolsGroup)
@@ -1030,6 +1061,24 @@ BasicGame.Game.prototype = {
         this.toolsGroup.setAll('body.gravity.y', this.gamespeed);                        
         this.toolsGroup.setAll('body.moves', false);    
     },
+
+    //传送门
+    createPortalRes:function () {
+        var type = this.game.rnd.integerInRange(1, 10);
+        // 传送门
+        var rl = this.game.add.sprite(this.game.width-50,this.game.height-100,'no', null, this.toolsGroup)
+        if (type > 5) {
+            rl.x = 50
+        };
+        rl.inputEnabled = true;
+        rl.events.onInputDown.add(function  () {
+            this.toolsGroup.remove(rl)
+            rl.kill();
+            this.portalCnt += 1
+        }, this);    
+        this.toolsGroup.setAll('body.gravity.y', this.gamespeed);                        
+        this.toolsGroup.setAll('body.moves', false);                         
+    },    
 
     //金币
     createCoin:function () {       
@@ -1059,7 +1108,10 @@ BasicGame.Game.prototype = {
 
     //传送门 heidong
     createPortal:function () {
-        var door = this.game.add.sprite(this.game.width/2, this.game.height/2-60, 'heidong', null, this.toolsGroup);
+        this.killGroup.removeAll();
+        this.hitGroup.removeAll();
+        this.bRunBg = true
+        var door = this.game.add.sprite(this.game.width/2, this.game.height/2-90, 'heidong', null, this.toolsGroup);
         door.anchor.set(0.5)
         door.body.setSize(200, 30,0, 0);        
         door.name = 'portal'

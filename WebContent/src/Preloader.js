@@ -80,6 +80,7 @@ BasicGame.Preloader.prototype = {
     	this.load.atlasJSONArray('fire', 'images/fire.png', 'images/fire.json');
     	this.load.atlasJSONArray('smoke', 'images/smoke.png', 'images/smoke.json');
     	this.load.atlasJSONArray('heidong', 'images/heidong.png', 'images/heidong.json');
+    	this.load.atlasJSONArray('dead', 'images/dead.png', 'images/dead.json');
     	this.load.atlas('zhalans', 'images/zhalan.png', 'images/zhalan.json');
     	this.load.atlas('players', 'images/playerJson.png', 'images/playerJson.json');
 		this.load.image('background', 'images/background.png');   	
