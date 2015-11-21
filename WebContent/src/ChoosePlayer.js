@@ -24,7 +24,7 @@ BasicGame.ChoosePlayer.prototype = {
 		var playersPic = ['player1.png','player2.png','alienGreen_front.png','alienPink_front.png',
 			'alienYellow_front.png','bunny1_stand.png','bunny2_stand.png','alienBeige_front.png']
 
-		var pricePlayer = [0,1,200,300,400,500,600,700]			
+		var pricePlayer = [0,100,200,300,400,500,600,700]			
 
 		var pos = [
 			[this.game.width/4*1,200],[this.game.width/4*2,200],[this.game.width/4*3,200],

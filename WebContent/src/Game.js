@@ -15,14 +15,6 @@ BasicGame.Game = function (game) {
     this.particles; //  the particle manager
     this.physics;   //  the physics manager
     this.rnd;       //  the repeatable random number generator
-
-    this.bRunBg = true
-    this.offsetY = 0
-    this.gamespeed = -80
-    this.longest = localData.get('longest') || 0
-    this.mycoin = localData.get('mycoin') || 0
-    this.fuelCnt = 0 // 燃料
-    this.useEffect = false // 正在使用大招加速
 };
 
 var maxFuelCnt = 3
@@ -85,6 +77,14 @@ if (window.DeviceMotionEvent) {
 
 BasicGame.Game.prototype = {
     create: function () {
+        this.bRunBg = true
+        this.offsetY = 0
+        this.gamespeed = -80
+        this.longest = localData.get('longest') || 0
+        this.mycoin = localData.get('mycoin') || 0
+        this.fuelCnt = 0 // 燃料
+        this.useEffect = false // 正在使用大招加速
+
         this.bg = new BasicGame.BackGround(this.game)
         this.game.add.existing(this.bg);
 
@@ -958,6 +958,7 @@ BasicGame.Game.prototype = {
             var bird = this.game.add.sprite(this.game.width-200, y, 'bird', null, this.killGroup);
             this.game.add.tween(bird).to({ x: 200 }, 4000, Phaser.Easing.Quadratic.InOut, true, 0, 1000, true); 
             bird.anchor.set(0.5)
+            bird.name = 'bird'
             bird.animations.add('fly');
             bird.animations.play('fly', 30, true);
 
@@ -974,10 +975,12 @@ BasicGame.Game.prototype = {
             }, this);
             this.game.time.events.loop(Phaser.Timer.SECOND/60, function () {
                 this.game.physics.arcade.overlap(gan.bullets, this.killGroup, function (bullet,bird) {
-                    bird.animations.stop();
-                    bullet.kill();
-                    this.killGroup.remove(bird)
-                    bird.kill()                    
+                    if (bird.name == 'bird') {
+                        bird.animations.stop();
+                        bullet.kill();
+                        this.killGroup.remove(bird)
+                        bird.kill()                    
+                    };
                 }, null, this);
             }, this); 
 
