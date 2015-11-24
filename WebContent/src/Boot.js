@@ -68,6 +68,7 @@ localData = {
 }
 
 GlobalPlayerFrame = 'player1.png',
+GlobalEqpFrame = 'rocket.png'
 
 BasicGame.Boot = function (game) {
 };
@@ -103,6 +104,7 @@ BasicGame.Boot.prototype = {
 
     preload: function () {
         this.load.image('preloaderBackground', 'images/bg01.png');
+        this.load.image('loaddi', 'images/loadtiaodi.png');     
         this.load.image('preloaderBar', 'images/jz_ggtiao.png');
     },
 

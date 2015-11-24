@@ -7,7 +7,7 @@ BasicGame.Player = function (game, x, y) {
     this.physics = game.physics.arcade;
     this.physics.enable(this);
 
-    this.rocket = this.game.make.sprite(0,0,'players','rocket.png')
+    this.rocket = this.game.make.sprite(0,0,'players',GlobalEqpFrame)
     this.rocket.anchor.set(0.5)
     this.addChild(this.rocket);
 

@@ -305,6 +305,7 @@ BasicGame.Game.prototype = {
 
     quitGame: function (pointer) {
         //死亡特效
+        this.bRunBg = false
         this.killGroup.removeAll();
         this.hitGroup.removeAll();
         this.toolsGroup.removeAll();
@@ -1098,10 +1099,15 @@ BasicGame.Game.prototype = {
 
         rl.inputEnabled = true;
         rl.events.onInputDown.add(function  () {
-            this.allResGroup.remove(rl)
-            rl.kill();
-            this.mycoin = Number(this.mycoin) + 1
-            localData.set('mycoin',this.mycoin)
+            var run = this.game.add.tween(rl)
+            run.to({ x: this.player.x,y:this.player.y-80 }, 600, Phaser.Easing.Quadratic.BackOut); 
+            run.start();
+            run.onComplete.addOnce(function () {
+                this.allResGroup.remove(rl)
+                rl.kill();
+                this.mycoin = Number(this.mycoin) + 1
+                localData.set('mycoin',this.mycoin)
+            },this);
         }, this); 
         this.allResGroup.setAll('body.gravity.y', this.gamespeed*2);                        
     },    

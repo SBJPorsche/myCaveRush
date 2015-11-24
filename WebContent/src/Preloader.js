@@ -13,6 +13,8 @@ BasicGame.Preloader.prototype = {
 	preload: function () {
 		this.background = this.add.sprite(this.world.centerX, this.world.centerY, 'preloaderBackground');
 		this.background.anchor.set(0.5,0.5)
+		this.preloadBarDi = this.add.sprite(this.world.centerX, this.world.centerY, 'loaddi');
+		this.preloadBarDi.anchor.set(0.5)
 		this.preloadBar = this.add.sprite(this.world.centerX, this.world.centerY, 'preloaderBar');
 		this.preloadBar.anchor.set(0.5)
 		this.load.setPreloadSprite(this.preloadBar);
@@ -91,7 +93,7 @@ BasicGame.Preloader.prototype = {
 		this.load.image('head', 'images/head.png');   	
 		this.load.image('gan', 'images/gan.png');   	
 		this.load.image('jinbi', 'images/jinbi.png');   	
-		this.load.image('di', 'images/di.png');   	
+        this.load.image('di', 'images/di.png');     
 	},
 
 	create: function () {
